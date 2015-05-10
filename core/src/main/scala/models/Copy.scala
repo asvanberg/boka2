@@ -31,4 +31,6 @@ object Copy extends ((Long, CopyData) ⇒ Copy) {
       case None ⇒ addCopyF(product, data) map right
     }
   } yield result
+
+  def get(product: Product): Program[List[Copy]] = execute(GetCopies(product))
 }
