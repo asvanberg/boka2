@@ -6,11 +6,14 @@ import scalaz.\/.{left, right}
 import scalaz.{\/, Monad}
 import scalaz.syntax.monad._
 
-final case class Copy(code: Identifier, productId: Long, note: Option[String])
+final case class Copy(productId: Long, data: CopyData) {
+  def code: Identifier = data.code
+  def note: Option[String] = data.note
+}
 
 final case class CopyData(code: Identifier, note: Option[String])
 
-object Copy {
+object Copy extends ((Long, CopyData) ⇒ Copy) {
   final case class IdentifierNotUnique private[models](duplicate: Copy)
 
   def find(code: Identifier): Program[Option[Copy]] = execute(FindCopy(code))

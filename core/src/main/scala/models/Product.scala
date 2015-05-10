@@ -10,11 +10,14 @@ import scalaz.syntax.equal._
 import scalaz.syntax.monad._
 import scalaz.{Monad, \/}
 
-final case class Product(id: Long, name: String, description: Option[String])
+final case class Product(id: Long, data: ProductData) {
+  def name: String = data.name
+  def description: Option[String] = data.description
+}
 
 final case class ProductData(name: String, description: Option[String])
 
-object Product extends ((Long, String, Option[String]) ⇒ Product) {
+object Product extends ((Long, ProductData) ⇒ Product) {
   final case class DuplicateName(other: Product)
 
   def add: (ProductData) ⇒ Program[DuplicateName \/ Product] =
