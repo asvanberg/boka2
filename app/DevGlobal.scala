@@ -2,11 +2,16 @@ import javax.inject.Inject
 
 import controllers.Security
 import play.api.Configuration
+import play.api.http.HttpFilters
 import play.api.mvc._
 
 import scala.concurrent.Future
 
 object DevGlobal extends WithFilters
+
+class DevFilters @Inject() (mockShibbolethFilter: MockShibbolethFilter) extends HttpFilters {
+  override def filters: Seq[EssentialFilter] = Seq(mockShibbolethFilter)
+}
 
 class MockShibbolethFilter @Inject()(configuration: Configuration) extends Filter {
   override def apply(f: (RequestHeader) ⇒ Future[Result])(rh: RequestHeader): Future[Result] = {
