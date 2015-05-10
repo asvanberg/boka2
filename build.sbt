@@ -9,8 +9,15 @@ lazy val boka2 = (project in file("."))
   .aggregate(core)
   .dependsOn(core)
 
-libraryDependencies ++= Seq( jdbc , anorm , cache , ws )
+resolvers += Resolver.bintrayRepo("scalaz", "releases")
+libraryDependencies ++= Seq(
+  jdbc,
+  "com.typesafe.play" %% "anorm" % "2.4.0-RC2",
+  cache,
+  ws,
+  specs2 % Test
+)
 
 wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Nothing, Wart.NonUnitStatements, Wart.AsInstanceOf)
 
-wartremoverExcluded ++= Seq("Routes", "controllers.ref", "_routes_")
+wartremoverExcluded ++= Seq("router")

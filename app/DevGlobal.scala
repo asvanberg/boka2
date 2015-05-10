@@ -13,12 +13,10 @@ class MockShibbolethFilter @Inject()(configuration: Configuration) extends Filte
     val extraHeaders = for {
       name ← configuration.getString(Security.nameHeader)
       principal ← configuration.getString(Security.principalHeader)
-    } yield Map(Security.nameHeader → Seq(name), Security.principalHeader → Seq(principal))
+    } yield Seq(Security.nameHeader → name, Security.principalHeader → principal)
 
-    val modifiedHeaders = rh.headers.toMap ++ extraHeaders.getOrElse(Map.empty)
-    val modifiedHeader = rh.copy(headers = new Headers {
-      override protected val data = modifiedHeaders.toSeq
-    })
+    val modifiedHeaders = rh.headers.add(extraHeaders.toSeq.flatten: _*)
+    val modifiedHeader = rh.copy(headers = modifiedHeaders)
 
     f(modifiedHeader)
   }
