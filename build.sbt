@@ -12,11 +12,11 @@ lazy val boka2 = (project in file("."))
 resolvers += Resolver.bintrayRepo("scalaz", "releases")
 libraryDependencies ++= Seq(
   jdbc,
-  "com.typesafe.play" %% "anorm" % "2.4.0-RC2",
+  "com.typesafe.play" %% "anorm" % "2.4.0",
   cache,
   ws,
   specs2 % Test,
-  "org.webjars" %% "webjars-play" % "2.4.0-RC1",
+  "org.webjars" %% "webjars-play" % "2.4.0-1",
   "org.webjars" % "bootstrap" % "3.3.4"
 )
 
