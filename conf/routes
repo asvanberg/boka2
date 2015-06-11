@@ -3,9 +3,15 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET         /                                      @controllers.Application.index
+GET         /admin/product                         @controllers.Application.listProducts
+GET         /admin/product/$id<[0-9]+>             @controllers.Application.viewProduct(id: Long)
+POST        /admin/product/$id<[0-9]+>             @controllers.Application.doEditProduct(id: Long)
+GET         /admin/product/add                     @controllers.Application.addProduct
+POST        /admin/product/add                     @controllers.Application.doAddProduct
+POST        /admin/product/$id<[0-9]+>/copy        @controllers.Application.doAddCopy(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET         /assets/*file                          controllers.Assets.at(path="/public", file)
+GET         /webjars/*file                         controllers.WebJarAssets.at(file)
 
-    

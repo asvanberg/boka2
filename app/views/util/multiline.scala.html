@@ -1,0 +1,5 @@
+@(text: String)
+
+<p>
+    @Html(HtmlFormat.escape(text).body.replaceAll("\r", "").replaceAll("\n\n", "</p><p>").replaceAll("\n", "<br>"))
+</p>
