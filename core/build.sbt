@@ -9,4 +9,4 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "shapeless-scalacheck" % "0.3" % "test"
 )
 
-wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Nothing, Wart.Any)
+wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.Nothing, Wart.Any, Wart.Throw, Wart.NoNeedForMonad)

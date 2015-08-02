@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.Security.AuthenticatedBuilder
 
-case class User(name: String, principal: String)
+final case class User(name: String, principal: String)
 
 trait Security {
   import Security._
