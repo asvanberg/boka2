@@ -1,6 +1,5 @@
 package models
 
-import models.Execution._
 import util.free._
 
 import scala.collection.immutable.List
@@ -23,28 +22,25 @@ final case class ProductData(name: String, description: Option[String])
 object Product extends ((Long, ProductData) ⇒ Product) {
   final case class DuplicateName(other: Product)
 
-  def add: (ProductData) ⇒ Program[DuplicateName \/ Product] =
-    uniqueName[Program](list, data ⇒ execute(AddProduct(data)))
+  def add[F[_]](data: ProductData)(implicit I: Inventory[F]): FreeC[F, DuplicateName \/ Product] =
+    uniqueName[({type λ[α] = FreeC[F, α]})#λ](data.name, list)(I.addProduct(data))
 
-  def update(product: Product): ProductData ⇒ Program[DuplicateName \/ Product] =
-    uniqueName[Program](
-      list map { _ filter { _.id /== product.id } },
-      data ⇒ execute(UpdateProduct(product, data))
-    )
+  def update[F[_]](product: Product, data: ProductData)(implicit I: Inventory[F]): FreeC[F, DuplicateName \/ Product] =
+    uniqueName[({type λ[α] = FreeC[F, α]})#λ](
+      data.name, list map { _ filter { _.id /== product.id } }
+    )(I.updateProduct(product, data))
 
-  private[models] def uniqueName[M[_]: Monad]
-  (listF: M[List[Product]], g: ProductData ⇒ M[Product])
-  (a: ProductData): M[DuplicateName \/ Product] = for {
-      products ← listF
-      result ← products.find(_.name === a.name) match {
+  private[models] def uniqueName[M[_]: Monad](name: String, listM: M[List[Product]])(g: ⇒ M[Product]): M[DuplicateName \/ Product] = for {
+      products ← listM
+      result ← products.find(_.name === name) match {
         case Some(duplicate) ⇒ left(DuplicateName(duplicate)).pure[M]
-        case None ⇒ g(a) map right
+        case None ⇒ g map right
       }
     } yield result
 
-  def list: Program[List[Product]] = execute(ListProducts)
+  def list[F[_]](implicit I: Inventory[F]): FreeC[F, List[Product]] = I.listProducts
 
-  def find(id: Long): Program[Option[Product]] = execute(FindProduct(id))
+  def find[F[_]](id: Long)(implicit I: Inventory[F]): FreeC[F, Option[Product]] = I.findProduct(id)
 
   sealed trait Status
   case object NoCopies extends Status

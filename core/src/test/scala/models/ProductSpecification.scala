@@ -11,17 +11,17 @@ import scalaz.Id.Id
 class ProductSpecification extends Specification with ScalaCheck with DisjunctionMatchers {
   "Products" should {
     "be addable to an empty system" in prop { (data: ProductData) ⇒
-      val add = Product.uniqueName[Id](Nil, data ⇒ Product(1, data)) _
+      val result = Product.uniqueName[Id](data.name, Nil)(Product(1, data))
 
-      add(data) must be_\/-.like {
+      result must be_\/-.like {
         case Product(_, d) ⇒ d must beEqualTo(data)
       }
     }
 
     "not allow duplicate names" in prop { (product: Product) ⇒
-      val add = Product.uniqueName[Id](List(product), data ⇒ Product(2, data)) _
+      val result = Product.uniqueName[Id](product.name, List(product))(Product(2, product.data))
 
-      add(ProductData(product.name, product.description)) must be_-\/(DuplicateName(product))
+      result must be_-\/(DuplicateName(product))
     }
   }
 }

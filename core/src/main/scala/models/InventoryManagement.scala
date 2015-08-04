@@ -20,7 +20,19 @@ class Inventory[F[_]](implicit I: Inject[InventoryManagement, F]) {
 
   private def lift[A](a: InventoryManagement[A]): G[A] = Free.liftFC(I.inj(a))
 
+  def addProduct(data: ProductData): G[Product] = lift(AddProduct(data))
+
+  def findProduct(id: Long): G[Option[Product]] = lift(FindProduct(id))
+
+  def updateProduct(product: Product, data: ProductData): G[Product] = lift(UpdateProduct(product, data))
+
+  def listProducts: G[List[Product]] = lift(ListProducts)
+
+  def addCopy(product: Product, data: CopyData): G[Copy] = lift(AddCopy(product, data))
+
   def getCopies(product: Product): G[List[Copy]] = lift(GetCopies(product))
+
+  def findCopy(identifier: Identifier): G[Option[Copy]] = lift(FindCopy(identifier))
 }
 
 object Inventory {
