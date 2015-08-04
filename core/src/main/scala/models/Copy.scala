@@ -2,6 +2,7 @@ package models
 
 import models.Execution._
 
+import scalaz.Free.FreeC
 import scalaz.\/.{left, right}
 import scalaz.{\/, Monad}
 import scalaz.syntax.monad._
@@ -33,4 +34,11 @@ object Copy extends ((Long, CopyData) ⇒ Copy) {
   } yield result
 
   def get(product: Product): Program[List[Copy]] = execute(GetCopies(product))
+
+  sealed trait Status
+  case object Available extends Status
+  final case class Borrowed(current: Ongoing) extends Status
+
+  def status[F[_]](copy: Copy)(implicit L: Loans[F]): FreeC[F, Status] =
+    L.current(copy) map { _.fold[Status](Available)(Borrowed) }
 }
