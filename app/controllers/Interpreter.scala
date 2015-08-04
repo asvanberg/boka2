@@ -1,10 +1,6 @@
 package controllers
 
-import models.Program
 import play.api.mvc._
-
-import scalaz.Alpha.A
-import scalaz.std.util.parsing.combinator.parser
 
 trait Interpreter {
   this: Controller ⇒

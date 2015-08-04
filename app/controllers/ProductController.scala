@@ -6,7 +6,7 @@ import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, Controller, Result}
+import play.api.mvc.{Controller, Result}
 import views.html._
 
 import scalaz.std.option._
@@ -28,7 +28,7 @@ trait ProductController {
   def doAddProduct = InterpretedAction { implicit request ⇒
     productDataForm.bindFromRequest.fold(
       invalidForm ⇒ BadRequest(admin.product.add(invalidForm)).pure[Program],
-      productData ⇒ Product.add(productData) map {
+      productData ⇒ Product.add[Boka2](productData) map {
         case -\/(DuplicateName(_)) =>
           val errorForm = productDataForm.fill(productData)
             .withGlobalError("A product with that name already exists")
@@ -41,13 +41,13 @@ trait ProductController {
   }
 
   def listProducts = InterpretedAction { implicit request ⇒
-    Product.list.map(products ⇒ Ok(admin.product.list(products)))
+    Product.list[Boka2].map(products ⇒ Ok(admin.product.list(products)))
   }
 
   private def getProductDetails(id: Long): Program[Option[ProductDetails]] = {
     for {
-      maybeProduct ← Product.find(id)
-      maybeCopies ← maybeProduct traverseU Copy.get
+      maybeProduct ← Product.find[Boka2](id)
+      maybeCopies ← maybeProduct traverseU Copy.get[Boka2]
     } yield ^(maybeProduct, maybeCopies)(ProductDetails)
   }
 
@@ -68,7 +68,7 @@ trait ProductController {
       productDataForm.bindFromRequest.fold(
         hasErrors ⇒ BadRequest(admin.product.view(details, hasErrors)).pure[Program],
         productData ⇒
-          Product.update(details.product)(productData) map {
+          Product.update[Boka2](details.product, productData) map {
             case -\/(DuplicateName(_)) ⇒
               val form = productDataForm.fill(productData)
                 .withGlobalError(s"There is already another product named ${productData.name}")
@@ -88,7 +88,7 @@ trait ProductController {
       val feedback = copyForm.bindFromRequest.fold(
         hasErrors ⇒ ("error" → "Invalid barcode").pure[Program],
         barcode =>
-          Copy.add(details.product, CopyData(barcode, None)) map {
+          Copy.add[Boka2](details.product, CopyData(barcode, None)) map {
             case -\/(IdentifierNotUnique(_)) ⇒
               "error" → "There is already another copy with that barcode"
             case \/-(copy) ⇒
