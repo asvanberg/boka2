@@ -5,13 +5,16 @@ import org.specs2.ScalaCheck
 import org.specs2.matcher.DisjunctionMatchers
 import org.specs2.mutable.Specification
 import shapeless.contrib.scalacheck._
+import test.{InventoryState, InventoryStateInterpreter}
 
-import scalaz.Id.Id
+import scalaz.{State, Free}
 
 class ProductSpecification extends Specification with ScalaCheck with DisjunctionMatchers {
+  val inventory = implicitly[Inventory[InventoryManagement]]
+
   "Products" should {
     "be addable to an empty system" in prop { (data: ProductData) ⇒
-      val result = Product.uniqueName[Id](data.name, Nil)(Product(1, data))
+      val result = evalEmpty(inventory.addProduct(data))
 
       result must be_\/-.like {
         case Product(_, d) ⇒ d must beEqualTo(data)
@@ -19,9 +22,15 @@ class ProductSpecification extends Specification with ScalaCheck with Disjunctio
     }
 
     "not allow duplicate names" in prop { (product: Product) ⇒
-      val result = Product.uniqueName[Id](product.name, List(product))(Product(2, product.data))
+      val result = eval(inventory.addProduct(product.data), InventoryState(List(product), Nil))
 
       result must be_-\/(DuplicateName(product))
     }
   }
+
+  def evalEmpty[A](program: Free.FreeC[InventoryManagement, A]) =
+    eval(program, InventoryState.empty)
+
+  def eval[A](program: Free.FreeC[InventoryManagement, A], inventory: InventoryState) =
+    Free.runFC[InventoryManagement, ({type λ[α] = State[InventoryState, α]})#λ, A](program)(InventoryStateInterpreter).eval(inventory)
 }
