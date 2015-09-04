@@ -1,0 +1,19 @@
+@()(implicit requestHeader: RequestHeader)
+
+@admin.base {
+
+    <style type="text/css">
+        td, span.label {
+            transition: background-color 0.3s;
+            transition-delay: 0.5s;
+            transition-timing-function: linear;
+        }
+        aside.pull-right {
+            margin-left: 20px;
+        }
+    </style>
+
+    <section id="inventoryCheck"></section>
+
+    <script src="@routes.Assets.at("javascripts/inventoryCheck.js")"></script>
+}

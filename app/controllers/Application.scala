@@ -3,15 +3,14 @@ package controllers
 import java.sql.Connection
 import javax.inject.Inject
 
-import play.api._
 import play.api.db.Database
-import play.api.i18n.{MessagesApi, I18nSupport}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 
 import scalaz._
 
 class Application @Inject() (val database: Database, val messagesApi: MessagesApi)
-  extends Controller with ProductController with Security with Interpreter with I18nSupport {
+  extends Controller with ProductController with Security with Interpreter with I18nSupport with InventoryCheckController {
 
   def index = Action {
     Ok(views.html.index("Your new application is ready."))
@@ -23,7 +22,11 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
     }
 
   private def interpret[A](program: Program[A]): A = {
-    val compiled = Free.runFC[Boka2, ({type λ[α] = Reader[Connection, α]})#λ, A](program)(DatabaseInterpreter)
+    val interpreter = new (Boka2 ~> ({type λ[α] = Reader[Connection, α]})#λ) {
+      override def apply[X](fa: Boka2[X]): Reader[Connection, X] =
+        fa.run.fold(DatabaseInterpreter.apply, LoanInterpreter.apply)
+    }
+    val compiled = Free.runFC[Boka2, ({type λ[α] = Reader[Connection, α]})#λ, A](program)(interpreter)
     database.withTransaction(compiled.run)
   }
 }

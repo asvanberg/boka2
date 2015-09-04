@@ -10,6 +10,8 @@ POST        /admin/product/$id<[0-9]+>             @controllers.Application.doEd
 GET         /admin/product/add                     @controllers.Application.addProduct
 POST        /admin/product/add                     @controllers.Application.doAddProduct
 POST        /admin/product/$id<[0-9]+>/copy        @controllers.Application.doAddCopy(id: Long)
+GET         /admin/inventoryCheck                  @controllers.Application.viewInventoryCheck
+GET         /admin/inventoryCheck.json             @controllers.Application.icjson
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                          controllers.Assets.at(path="/public", file)

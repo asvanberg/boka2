@@ -10,13 +10,13 @@ import scalaz.\/
 import scalaz.\/.{left, right}
 
 sealed trait Loan {
-  def copyId: Long
+  def copyId: Identifier
   def borrower: Principal
   def borrowed: LocalDate
 }
 
-final case class Ongoing(copyId: Long, borrower: Principal, borrowed: LocalDate) extends Loan
-final case class Returned(copyId: Long, borrower: Principal, borrowed: LocalDate, returned: LocalDate) extends Loan
+final case class Ongoing(copyId: Identifier, borrower: Principal, borrowed: LocalDate) extends Loan
+final case class Returned(copyId: Identifier, borrower: Principal, borrowed: LocalDate, returned: LocalDate) extends Loan
 
 object Loan {
 

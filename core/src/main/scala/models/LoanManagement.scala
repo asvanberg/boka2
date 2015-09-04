@@ -7,10 +7,10 @@ import scalaz.{Free, Inject}
 
 sealed trait LoanManagement[A]
 
-private final case class RecordLoan(copy: Copy, borrower: Principal, loanedOn: LocalDate) extends LoanManagement[Ongoing]
-private final case class CurrentLoan(copy: Copy) extends LoanManagement[Option[Ongoing]]
-private final case class ReturnLoan(ongoing: Ongoing, returned: LocalDate) extends LoanManagement[Returned]
-private final case class History(copy: Copy) extends LoanManagement[List[Loan]]
+final case class RecordLoan private[models] (copy: Copy, borrower: Principal, loanedOn: LocalDate) extends LoanManagement[Ongoing]
+final case class CurrentLoan private[models] (copy: Copy) extends LoanManagement[Option[Ongoing]]
+final case class ReturnLoan private[models] (ongoing: Ongoing, returned: LocalDate) extends LoanManagement[Returned]
+final case class History private[models] (copy: Copy) extends LoanManagement[List[Loan]]
 
 class Loans[F[_]](implicit I: Inject[LoanManagement, F]) {
   type G[A] = Free.FreeC[F, A]
