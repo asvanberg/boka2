@@ -5,7 +5,7 @@ Common.settings
 lazy val core = project
 
 lazy val boka2 = (project in file("."))
-  .enablePlugins(PlayScala)
+  .enablePlugins(PlayScala, SbtWeb)
   .aggregate(core)
   .dependsOn(core)
 
@@ -25,3 +25,5 @@ wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wa
 
 wartremoverExcluded <+= crossTarget { _ / "routes" / "main" / "router" / "RoutesPrefix.scala" }
 wartremoverExcluded <+= crossTarget { _ / "routes" / "main" / "router" / "Routes.scala" }
+
+pipelineStages := Seq(closure, digest, gzip)
