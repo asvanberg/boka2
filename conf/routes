@@ -12,6 +12,10 @@ POST        /admin/product/add                     @controllers.Application.doAd
 POST        /admin/product/$id<[0-9]+>/copy        @controllers.Application.doAddCopy(id: Long)
 GET         /admin/inventoryCheck                  @controllers.Application.viewInventoryCheck
 GET         /admin/inventoryCheck.json             @controllers.Application.icjson
+GET         /admin/person.list.json                @controllers.Application.search(searchTerm: String)
+GET         /admin/person.photo                    @controllers.Application.photo(id: Long)
+GET         /admin/person                          @controllers.Application.person
+GET         /admin/json/person/$id<[0-9]+>         @controllers.Application.specificPerson(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                          controllers.Assets.at(path="/public", file)

@@ -9,7 +9,9 @@
         <script type="text/javascript" src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
         <script type="text/javascript" src="@routes.WebJarAssets.at(WebJarAssets.locate("js/bootstrap.min.js"))"></script>
         @helper.javascriptRouter("jsRoutes")(
-            routes.javascript.Application.icjson
+            routes.javascript.Application.icjson,
+            routes.javascript.Application.search,
+            routes.javascript.Application.specificPerson
         )
     </head>
     <body>
@@ -24,6 +26,7 @@
                         <li><a href="@routes.Application.addProduct">Add</a></li>
                         <li><a href="@routes.Application.listProducts">List</a></li>
                         <li><a href="@routes.Application.viewInventoryCheck">Inventory check</a></li>
+                        <li><a href="@routes.Application.person">Person</a></li>
                     </ul>
                 </div>
             </div>
