@@ -1,4 +1,4 @@
-package controllers
+package algebra
 
 import java.sql.Connection
 
@@ -8,7 +8,7 @@ import models._
 
 import scalaz.{Reader, ~>}
 
-object DatabaseInterpreter extends (InventoryManagement ~> ({type λ[α] = Reader[Connection, α]})#λ) {
+object DatabaseInterpreter extends (InventoryManagement ~> ConnectionIO) {
   override def apply[A](fa: InventoryManagement[A]): Reader[Connection, A] = Reader {
     implicit connection ⇒
       fa match {

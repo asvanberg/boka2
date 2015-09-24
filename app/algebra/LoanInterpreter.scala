@@ -1,4 +1,4 @@
-package controllers
+package algebra
 
 import java.sql.Connection
 import java.time.LocalDate
@@ -8,7 +8,7 @@ import models._
 
 import scalaz._
 
-object LoanInterpreter extends (LoanManagement ~> ({type λ[α] = Reader[Connection, α]})#λ) {
+object LoanInterpreter extends (LoanManagement ~> ConnectionIO) {
   import extraTypes._
 
   override def apply[A](fa: LoanManagement[A]): Reader[Connection, A] = Reader {

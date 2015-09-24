@@ -1,8 +1,8 @@
 package controllers
 
-import java.sql.Connection
 import javax.inject.Inject
 
+import algebra.{ConnectionIO, AuthInterpreter, DatabaseInterpreter, LoanInterpreter}
 import play.api.Configuration
 import play.api.db.Database
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -25,11 +25,11 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
     }
 
   private def interpret[A](program: Program[A]): A = {
-    val interpreter = new (Boka2 ~> ({type λ[α] = Reader[Connection, α]})#λ) {
-      override def apply[X](fa: Boka2[X]): Reader[Connection, X] =
-        fa.run.fold(DatabaseInterpreter.apply, LoanInterpreter.apply)
+    val interpreter = new (Boka2 ~> ConnectionIO) {
+      override def apply[X](fa: Boka2[X]): ConnectionIO[X] =
+        fa.run.fold(AuthInterpreter.apply, _.run.fold(DatabaseInterpreter.apply, LoanInterpreter.apply))
     }
-    val compiled = Free.runFC[Boka2, ({type λ[α] = Reader[Connection, α]})#λ, A](program)(interpreter)
+    val compiled = Free.runFC[Boka2, ConnectionIO, A](program)(interpreter)
     database.withTransaction(compiled.run)
   }
 }
