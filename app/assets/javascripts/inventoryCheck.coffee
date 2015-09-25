@@ -23,7 +23,7 @@ inventoryCheck =
     @check = () ->
       if !!@code()
         @copies().map (copy) =>
-          if copy.code() == @code() then copy.status("available")
+          if copy.code() is @code() then copy.status("available")
           copy
         @code("")
 
@@ -36,9 +36,9 @@ inventoryCheck =
         else "danger"
 
     statusLabel = (status) ->
-      if status == "loaned"
+      if status is "loaned"
         m("span.label.label-#{statusClass(status)}", "Loaned")
-      else if status == "available"
+      else if status is "available"
         m("span.label.label-#{statusClass(status)}", "Available")
       else
         m("span.label.label-#{statusClass(status)}", "Missing")
@@ -98,7 +98,7 @@ inventoryCheck =
                 m("td", copy.name())
                 m("td", statusLabel(copy.status()))
               ])
-            m("tr", m("td[colspan=3]", "Loading...")) if ctrl.copies().length == 0
+            m("tr", m("td[colspan=3]", "Loading...")) unless ctrl.copies().length
           ])
         ])
       ])

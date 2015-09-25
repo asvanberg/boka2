@@ -33,7 +33,7 @@ debounce = (func, threshold, execAsap) ->
       clearTimeout(timeout)
     else if (execAsap)
       func.apply(obj, args)
-    timeout = setTimeout delayed, threshold || 100
+    timeout = setTimeout delayed, threshold or 100
 
 search =
   controller: ->
@@ -43,7 +43,7 @@ search =
       search: debounce(
         (term) ->
           selected = [].slice.call(document.getElementById("people").options).find (option) ->
-             option.value == term
+             option.value is term
           if selected
             m.route("/#{selected.getAttribute("pid")}")
           else
