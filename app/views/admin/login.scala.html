@@ -1,0 +1,7 @@
+@(auth0Configuration: Auth0Configuration)(implicit requestHeader: RequestHeader)
+
+@admin.base {
+    <a href="https://@{auth0Configuration.domain}/authorize?response_type=token&scope=openid%20name%20email&client_id=@{auth0Configuration.clientId}&redirect_uri=@{auth0Configuration.callbackUrl}&connection=DSV">
+        Log in
+    </a>
+}

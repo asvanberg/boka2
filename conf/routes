@@ -4,6 +4,8 @@
 
 # Home page
 GET         /                                      @controllers.Application.index
+GET         /admin/login                           @controllers.Application.login
+GET         /admin/callback                        @controllers.Application.callback
 GET         /admin/product                         @controllers.Application.listProducts
 GET         /admin/product/$id<[0-9]+>             @controllers.Application.viewProduct(id: Long)
 POST        /admin/product/$id<[0-9]+>             @controllers.Application.doEditProduct(id: Long)

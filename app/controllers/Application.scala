@@ -16,6 +16,7 @@ import play.api.mvc._
 import scala.concurrent.Future
 import scalaz._
 import scalaz.std.scalaFuture._
+import scalaz.std.option._
 
 class Application @Inject() (val database: Database, val messagesApi: MessagesApi, val client: WSClient, val configuration: Configuration)
   extends Controller with ProductController with Security with Interpreter
@@ -23,6 +24,19 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
 
   def index = Action {
     Ok(views.html.index("Your new application is ready."))
+  }
+
+  def login = Action { implicit request ⇒
+    def cfgVar(k: String) = configuration.getString(k)
+    import scalaz.syntax.apply._
+    val auth0Config = ^^(cfgVar("AUTH0_CALLBACK_URL"), cfgVar("AUTH0_CLIENT_ID"), cfgVar("AUTH0_DOMAIN"))(Auth0Configuration)
+    auth0Config.fold[Result](ServiceUnavailable) { config ⇒
+      Ok(views.html.admin.login(config))
+    }
+  }
+
+  def callback = Action {
+    Ok(views.html.admin.callback())
   }
 
   override def InterpretedAction[A](parser: BodyParser[A])(block: (Request[A]) ⇒ Program[Result]): Action[A] =

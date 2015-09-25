@@ -1,0 +1,11 @@
+<script src="@routes.Assets.versioned("javascripts/mithril.min.js")"></script>
+<script type="text/javascript">
+    var hash = m.route.parseQueryString(window.location.hash.substring(1));
+    if (hash && hash.id_token) {
+        sessionStorage.setItem("id_token", hash.id_token)
+        document.location.replace('@routes.Application.listProducts')
+    }
+    else {
+        document.location.replace('@routes.Application.login')
+    }
+</script>
