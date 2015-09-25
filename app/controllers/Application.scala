@@ -4,8 +4,7 @@ import java.sql.Connection
 import javax.inject.Inject
 
 import algebra._
-import controllers.Application._
-import models.{InventoryManagement, LoanManagement}
+import controllers.Interpreters.Compiled
 import play.api.Configuration
 import play.api.db.Database
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -72,22 +71,5 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
 }
 
 object Application {
-  type Compiled[A] = ReaderT[Future, Configuration, A]
-
   final case class Configuration(connection: Connection, client: WSClient, daisy: Daisy.Configuration)
-}
-
-object Interpreters {
-  object inventory extends (InventoryManagement ~> Compiled) {
-    override def apply[A](fa: InventoryManagement[A]): Compiled[A] = DatabaseInterpreter(fa).local[Application.Configuration](_.connection).mapK(Future.successful)
-  }
-  object loans extends (LoanManagement ~> Compiled) {
-    override def apply[A](fa: LoanManagement[A]): Compiled[A] = LoanInterpreter(fa).local[Application.Configuration](_.connection).mapK(Future.successful)
-  }
-  object auth extends (Auth ~> Compiled) {
-    override def apply[A](fa: Auth[A]): Compiled[A] = AuthInterpreter(fa).local[Application.Configuration](_.connection).mapK(Future.successful)
-  }
-  object daisy extends (Daisy ~> Compiled) {
-    override def apply[A](fa: Daisy[A]): Compiled[A] = Daisy.Interpreter.apply(fa).local[Application.Configuration](c ⇒ (c.client, c.daisy))
-  }
 }
