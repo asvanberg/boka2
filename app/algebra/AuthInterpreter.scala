@@ -1,6 +1,7 @@
 package algebra
 
 import anorm._
+import anorm.SqlParser.scalar
 import java.sql.Connection
 
 import scalaz.{Reader, ~>}
@@ -11,8 +12,7 @@ object AuthInterpreter extends (Auth ~> ConnectionIO) {
       fa match {
         case IsAdmin(sub) ⇒
           SQL"""SELECT EXISTS (SELECT 1 FROM admins WHERE subject = $sub) OR NOT EXISTS (SELECT 1 FROM admins)"""
-            .as(SqlParser.bool(1).singleOpt)
-            .isDefined
+            .as(scalar[Boolean].single)
       }
   }
 }
