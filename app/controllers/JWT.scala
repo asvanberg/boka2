@@ -10,12 +10,12 @@ import scalaz.syntax.id._
 final case class JWT(claims: JsValue)
 
 object JWT extends (JsValue ⇒ JWT) {
-  def isValid(token: String, key: Array[Byte]): Boolean = {
+  def isValid(token: String, key: String): Boolean = {
     token.split('.') match {
       case Array(header, payload, signature) ⇒
         val s = decode(signature)
         val mac = Mac.getInstance("HmacSHA256")
-        val keySpec = new SecretKeySpec(key, "HmacSHA256")
+        val keySpec = new SecretKeySpec(decode(key), "HmacSHA256")
         mac.init(keySpec)
         mac.update(header.getBytes)
         mac.update('.'.toByte)

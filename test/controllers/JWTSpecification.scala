@@ -27,15 +27,15 @@ class JWTSpecification extends Specification with ScalaCheck {
     }
 
     "validate correctly signed tokens" in {
-      val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+      val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.8ayznaGGRy4Z8wQg8KC7IzRWY86bZRAAuCuVOXsXYfw"
 
-      JWT.isValid(token, "secret".getBytes) must beTrue
+      JWT.isValid(token, "secret") must beTrue
     }
 
     "not validate tokens signed with the wrong secret" in {
-      val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"
+      val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.8ayznaGGRy4Z8wQg8KC7IzRWY86bZRAAuCuVOXsXYfw"
 
-      JWT.isValid(token, "wrong_secret".getBytes) must beFalse
+      JWT.isValid(token, "wrong_secret") must beFalse
     }
   }
 }

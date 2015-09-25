@@ -31,7 +31,7 @@ object Security {
 trait JWTSecurity {
   this: Controller ⇒
   
-  def secret: Array[Byte]
+  def secret: String
   
   def authenticated(block: JWT ⇒ EssentialAction): EssentialAction = {
     Authenticated[JWT](
