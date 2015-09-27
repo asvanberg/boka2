@@ -12,7 +12,8 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
 import scalaz._
 import scalaz.std.scalaFuture._
 import scalaz.std.option._
@@ -39,21 +40,22 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
   }
 
   override def InterpretedAction[A](parser: BodyParser[A])(block: (Request[A]) ⇒ Program[Result]): Action[A] =
-    Action.async(parser) { request ⇒
+    Action(parser) { request ⇒
       interpret(block(request))
     }
 
-  private def interpret[A](program: Program[A]): Future[A] = {
+  private def interpret(program: Program[Result]): Result = {
     val interpreter = new (Boka2 ~> Compiled) {
       override def apply[X](fa: Boka2[X]): Compiled[X] =
         fa.run.fold(Interpreters.daisy.apply, _.run.fold(Interpreters.auth.apply, _.run.fold(Interpreters.inventory.apply, Interpreters.loans.apply)))
     }
-    val compiled = Free.runFC[Boka2, Compiled, A](program)(interpreter)
+    val compiled = Free.runFC[Boka2, Compiled, Result](program)(interpreter)
     database.withTransaction { conn ⇒
-      daisyConfiguration.fold(Future.failed[A](new IllegalStateException("Daisy not configured"))) {
+      daisyConfiguration.fold[Result](ServiceUnavailable("Daisy not configured")) {
         daisyConfig ⇒
           val c = Application.Configuration(conn, client, daisyConfig)
-          compiled.run(c)
+          // TODO: Fix something better, scalaz.Task?
+          Await.result(compiled.run(c), Duration.Inf)
       }
     }
   }
