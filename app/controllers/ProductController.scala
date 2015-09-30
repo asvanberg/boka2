@@ -38,7 +38,7 @@ trait ProductController {
   }
 
   def listProducts = InterpretedAction { implicit request ⇒
-    inventory.listProducts.map(products ⇒ Ok(admin.product.list(products)))
+    inventory.listProducts.map(products ⇒ Ok(Json.toJson(products)))
   }
 
   private def getProductDetails(id: Long): Program[Option[ProductDetails]] = {

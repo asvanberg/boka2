@@ -4,6 +4,13 @@ class Product
     @name = m.prop data?.name
     @description = m.prop data?.description
 
+  @list: ->
+    m.request
+      method: jsRoutes.controllers.Application.listProducts().method
+      url: jsRoutes.controllers.Application.listProducts().url
+      type: Product
+      background: true
+
 productModule =
   add:
     controller: () ->
@@ -23,8 +30,30 @@ productModule =
         m.component productModule.form, {error: ctrl.error, onsave: ctrl.add}
       ]
   list:
-    controller: () ->
+    controller: ->
+      productList = Product.list()
+      productList.then(m.redraw)
+      productList: productList
     view: (ctrl) ->
+      [
+        m "h1", "Product list"
+        m "table.table.table-hover.table-striped", [
+          m "thead", [
+            m "tr", [
+              m "th", "Name"
+            ]
+          ]
+          m "tbody", [
+            if not ctrl.productList() then m "tr", m "td[colspan=1].text-center", "Loading..."
+            else [
+              ctrl.productList().map (product) ->
+                m "tr", m "td", m "a[href='/product/#{product.id()}']", {config: m.route}, product.name()
+              m "tr", m "td[colspan=1].text-center", "No products" unless ctrl.productList().length
+            ]
+          ]
+        ]
+      ]
+
 
   form:
     controller: (args) ->
@@ -51,3 +80,4 @@ productModule =
 exports = this
 exports.product =
   add: productModule.add
+  list: productModule.list

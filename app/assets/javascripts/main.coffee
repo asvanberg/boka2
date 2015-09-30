@@ -14,6 +14,7 @@ layout.view = (ctrl) ->
       m(".col-sm-3", [
         m("h4", "Products")
         m("ul", [
+          m("li", m("a[href='/product']", {config: m.route}, "Product list"))
           m("li", m("a[href='/product/add']", {config: m.route}, "Add product"))
           m("li", m("a[href='/person']", {config: m.route}, "Person"))
           m("li", m("a[href='/inventoryCheck']", {config: m.route}, "Inventory check"))
@@ -30,4 +31,5 @@ document.addEventListener "DOMContentLoaded", () ->
     "/person/:id": layout(exports.person.view)
     "/inventoryCheck": layout(exports.inventoryCheck)
     "/product/add": layout(exports.product.add)
+    "/product": layout(exports.product.list)
   })

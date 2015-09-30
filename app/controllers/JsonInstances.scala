@@ -2,15 +2,20 @@ package controllers
 
 import controllers.ValidationReads._
 import models.{Product, ProductData}
-import play.api.libs.json.{Writes, Reads, Json}
+import play.api.libs.json._
 import scalaz.std.function._
 import scalaz.syntax.monad._
 
 trait JsonInstances extends JsonWrites with JsonReads
 
 trait JsonWrites {
-  implicit val productDataReads: Writes[ProductData] = Json.writes[ProductData]
-  implicit val productWrites: Writes[Product] = Json.writes[Product]
+  implicit val productWrites: Writes[Product] = Writes { case Product(id, ProductData(name, description)) ⇒
+    Json.obj(
+      "id" → JsNumber(id),
+      "name" → JsString(name),
+      "description" → description.fold[JsValue](JsNull)(JsString)
+    )
+  }
 }
 
 trait JsonReads {
