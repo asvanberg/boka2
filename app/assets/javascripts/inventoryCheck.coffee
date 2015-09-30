@@ -104,4 +104,5 @@ inventoryCheck =
       ])
     ]
 
-document.addEventListener 'DOMContentLoaded', -> m.mount(document.getElementById("inventoryCheck"), inventoryCheck)
+exports = this
+exports.inventoryCheck = inventoryCheck

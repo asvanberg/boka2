@@ -1,0 +1,24 @@
+@()(implicit requestHeader: RequestHeader)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="@routes.WebJarAssets.at(WebJarAssets.locate("css/bootstrap.min.css"))">
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/animate.css")">
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/mithril.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/util.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/inventoryCheck.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/person.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/product.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/main.js")"></script>
+        @helper.javascriptRouter("jsRoutes")(
+            routes.javascript.Application.icjson,
+            routes.javascript.Application.search,
+            routes.javascript.Application.specificPerson,
+            routes.javascript.Application.doAddProduct
+        )
+    </head>
+    <body>
+        <noscript>Please enable JavaScript</noscript>
+    </body>
+</html>

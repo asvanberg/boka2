@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET         /                                      @controllers.Application.index
+GET         /admin                                 @controllers.Application.index
 GET         /admin/login                           @controllers.Application.login
 GET         /admin/callback                        @controllers.Application.callback
 GET         /admin/product                         @controllers.Application.listProducts

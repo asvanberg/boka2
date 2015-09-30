@@ -1,12 +1,15 @@
 package controllers
 
+import controllers.json._
 import models.Copy.IdentifierNotUnique
 import models.Product.DuplicateName
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
+import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import views.html._
 
 import scalaz.std.option._
@@ -25,19 +28,13 @@ trait ProductController {
     Ok(admin.product.add(productDataForm))
   }
 
-  def doAddProduct = InterpretedAction { implicit request ⇒
-    productDataForm.bindFromRequest.fold(
-      invalidForm ⇒ BadRequest(admin.product.add(invalidForm)).pure[Program],
-      productData ⇒ inventory.addProduct(productData) map {
-        case -\/(DuplicateName(_)) =>
-          val errorForm = productDataForm.fill(productData)
-            .withGlobalError("A product with that name already exists")
-          Conflict(admin.product.add(errorForm))
-        case \/-(Product(_, ProductData(name, _))) =>
-          Redirect(routes.Application.listProducts)
-            .flashing("success" → s"Added $name")
-      }
-    )
+  def doAddProduct = InterpretedAction(validation[ProductData]) { implicit request ⇒
+    inventory.addProduct(request.body) map {
+      case -\/(DuplicateName(_)) =>
+        Conflict(error("name" → "A product with that name already exists"))
+      case \/-(product) =>
+        Ok(Json.toJson(product))
+    }
   }
 
   def listProducts = InterpretedAction { implicit request ⇒

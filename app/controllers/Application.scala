@@ -22,8 +22,8 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
   extends Controller with ProductController with Security with Interpreter
   with I18nSupport with InventoryCheckController with PersonController {
 
-  def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+  def index = Action { implicit request ⇒
+    Ok(views.html.admin.index())
   }
 
   def login = Action { implicit request ⇒

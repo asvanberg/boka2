@@ -45,7 +45,7 @@ search =
           selected = [].slice.call(document.getElementById("people").options).find (option) ->
              option.value is term
           if selected
-            m.route("/#{selected.getAttribute("pid")}")
+            m.route("/person/#{selected.getAttribute("pid")}")
           else
             Person.search(term).then(list)
         300
@@ -89,7 +89,7 @@ personComponent =
       ])
     ])
 
-document.addEventListener 'DOMContentLoaded', -> m.route(document.getElementById("app"), "/", {
-  "/": search
-  "/:id": personComponent
-})
+exports = this
+exports.person =
+  search: search
+  view: personComponent
