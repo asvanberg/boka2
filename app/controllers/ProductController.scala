@@ -56,26 +56,23 @@ trait ProductController {
 
   def viewProduct(id: Long) = InterpretedAction { implicit request ⇒
     withProductDetails(id) { details ⇒
-      Ok(admin.product.view(details, productDataForm.fill(details.product.data))).pure[Program]
+      Ok(Json.toJson(details)).pure[Program]
     }
   }
 
-  def doEditProduct(id: Long) = InterpretedAction { implicit request ⇒
-    withProductDetails(id) { details ⇒
-      productDataForm.bindFromRequest.fold(
-        hasErrors ⇒ BadRequest(admin.product.view(details, hasErrors)).pure[Program],
-        productData ⇒
-          inventory.updateProduct(details.product, productData) map {
-            case -\/(DuplicateName(_)) ⇒
-              val form = productDataForm.fill(productData)
-                .withGlobalError(s"There is already another product named ${productData.name}")
-              Conflict(admin.product.view(details, form))
-            case \/-(updated) ⇒
-              Redirect(routes.Application.viewProduct(updated.id))
-                .flashing("success" → "Updated")
-          }
-      )
-    }
+  def doEditProduct(id: Long) = InterpretedAction(validation[ProductData]) { implicit request ⇒
+    import _root_.util.free._
+    for {
+      optProduct ← inventory.findProduct(id)
+      result ← optProduct traverseFC { oldProduct ⇒
+        inventory.updateProduct(oldProduct, request.body) map {
+          case -\/(DuplicateName(_)) ⇒
+            Conflict(error("name" → "A product with that name already exists"))
+          case \/-(editedProduct) ⇒
+            Ok(Json.toJson(editedProduct))
+        }
+      }
+    } yield result getOrElse NotFound
   }
 
   private val copyForm = Form(single("barcode" → nonEmptyText))

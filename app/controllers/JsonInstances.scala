@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.ValidationReads._
-import models.{Product, ProductData}
+import models._
 import play.api.libs.json._
 import scalaz.std.function._
 import scalaz.syntax.monad._
@@ -16,6 +16,15 @@ trait JsonWrites {
       "description" → description.fold[JsValue](JsNull)(JsString)
     )
   }
+
+  implicit val copyWrites: Writes[Copy] = Writes { case Copy(_, CopyData(barcode, note)) ⇒
+    Json.obj(
+      "barcode" → JsString(barcode),
+      "note" → note.fold[JsValue](JsNull)(JsString)
+    )
+  }
+
+  implicit val productDetailsWrites: Writes[ProductDetails] = Json.writes[ProductDetails]
 }
 
 trait JsonReads {

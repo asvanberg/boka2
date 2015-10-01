@@ -1,8 +1,8 @@
 class Product
   constructor: (data) ->
     @id = m.prop data?.id
-    @name = m.prop data?.name
-    @description = m.prop data?.description
+    @name = m.prop data?.name or ""
+    @description = m.prop data?.description or ""
 
   @list: ->
     m.request
@@ -11,10 +11,32 @@ class Product
       type: Product
       background: true
 
+  @save: (product) ->
+    m.request
+      method: jsRoutes.controllers.Application.doEditProduct(product.id()).method
+      url: jsRoutes.controllers.Application.doEditProduct(product.id()).url
+      data: product
+      type: Product
+
+class Copy
+  constructor: (data) ->
+    @barcode = m.prop data.barcode
+    @note = m.prop data.note
+
+class ProductDetails
+  constructor: (data) ->
+    @product = m.prop new Product data.product
+    @copies = m.prop (new Copy copy for copy in data.copies)
+
+  @get: (id) ->
+    m.request
+      method: jsRoutes.controllers.Application.viewProduct(id).method
+      url: jsRoutes.controllers.Application.viewProduct(id).url
+      type: ProductDetails
+
 productModule =
   add:
     controller: () ->
-      @error = m.prop {}
       @product = m.prop new Product
       @add = (product) =>
         m.request
@@ -22,12 +44,12 @@ productModule =
           url: jsRoutes.controllers.Application.doAddProduct().url
           data: product
           type: Product
-        .then @product, @error
+        .then @product
       return @
     view: (ctrl) ->
       [
         m "h1", "Add product"
-        m.component productModule.form, {error: ctrl.error, onsave: ctrl.add}
+        m.component form, {onsave: ctrl.add}
       ]
   list:
     controller: ->
@@ -53,31 +75,61 @@ productModule =
           ]
         ]
       ]
+  view:
+    controller: ->
+      productDetails = ProductDetails.get m.route.param "id"
+      productDetails.then null, m.route.bind this, "/product"
+      editing = m.prop false
 
-
-  form:
-    controller: (args) ->
-      @product = args.product || m.prop new Product
-      @error = args.error || m.prop {}
-      return @
-    view: (ctrl, args) ->
-      product = ctrl.product()
-      m "form", {onsubmit: (e) -> e.preventDefault(); args.onsave(product)}, [
-        if ctrl.error().fields then m ".alert.alert-danger", [
-          m "ul", [m "li", message for _, message of ctrl.error().fields]
-        ]
-        m ".form-group", {class: if ctrl.error().fields?.name then "has-error" else ""}, [
-          m "label[for=name].control-label", "Name"
-          m "input#name[type=text][].form-control", {oninput: m.withAttr("value", product.name)}
-        ]
-        m ".form-group", {class: if ctrl.error().fields?.description then "has-error" else ""}, [
-          m "label[for=description].control-label", "Description"
-          m "textarea#description.form-control", {oninput: m.withAttr("value", product.description)}
-        ]
-        m "button[type=submit].btn.btn-primary", "Save"
+      productDetails: productDetails
+      editing: editing
+      save: (product) ->
+        Product.save product
+          .then(
+            (product) ->
+              productDetails().product(product)
+              editing(false)
+          )
+    view: (ctrl) ->
+      product = ctrl.productDetails().product
+      [
+        m "h1", "Product details"
+        m.component form, {product: product, onsave: ctrl.save, oncancel: ctrl.editing.bind(this, false)} if ctrl.editing()
+        m "form", [
+          m "a.btn.btn-link.pull-right", {onclick: ctrl.editing.bind this, true}, "Edit"
+          m ".form-group", [
+            m "label.control-label", "Name"
+            m "p.form-control-static", product().name()
+          ]
+          m ".form-group", [
+            m "label.control-label", "Description"
+            m "p.form-control-static", product().description() || m "i", "None"
+          ]
+        ] unless ctrl.editing()
       ]
 
+form =
+  controller: (args) ->
+    @product = args.product || m.prop new Product
+    @error = m.prop {}
+    return @
+  view: (ctrl, args) ->
+    product = ctrl.product()
+    m "form", {onsubmit: (e) -> e.preventDefault(); args.onsave(product).then(null, ctrl.error)}, [
+      if ctrl.error().fields then m ".alert.alert-danger", [
+        m "ul", [m "li", message for _, message of ctrl.error().fields]
+      ]
+      m ".form-group", {class: if ctrl.error().fields?.name then "has-error" else ""}, [
+        m "label[for=name].control-label", "Name"
+        m "input#name[type=text][required].form-control", {oninput: m.withAttr("value", product.name), value: product.name()}
+      ]
+      m ".form-group", {class: if ctrl.error().fields?.description then "has-error" else ""}, [
+        m "label[for=description].control-label", "Description"
+        m "textarea#description.form-control", {oninput: m.withAttr("value", product.description), value: product.description()}
+      ]
+      m "button[type=submit].btn.btn-primary", "Save"
+      m "a.btn.btn-link", {onclick: args.oncancel}, "Cancel" if args.oncancel
+    ]
+
 exports = this
-exports.product =
-  add: productModule.add
-  list: productModule.list
+exports.product = productModule

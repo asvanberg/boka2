@@ -32,4 +32,5 @@ document.addEventListener "DOMContentLoaded", () ->
     "/inventoryCheck": layout(exports.inventoryCheck)
     "/product/add": layout(exports.product.add)
     "/product": layout(exports.product.list)
+    "/product/:id": layout(exports.product.view)
   })
