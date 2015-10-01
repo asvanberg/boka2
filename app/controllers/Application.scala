@@ -5,6 +5,7 @@ import javax.inject.Inject
 
 import algebra._
 import controllers.Interpreters.Compiled
+import models.Auth0Configuration
 import play.api.Configuration
 import play.api.db.Database
 import play.api.i18n.{I18nSupport, MessagesApi}
