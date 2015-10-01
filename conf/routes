@@ -9,14 +9,11 @@ GET         /admin/callback                        @controllers.Application.call
 GET         /admin/product                         @controllers.Application.listProducts
 GET         /admin/product/$id<[0-9]+>             @controllers.Application.viewProduct(id: Long)
 POST        /admin/product/$id<[0-9]+>             @controllers.Application.doEditProduct(id: Long)
-GET         /admin/product/add                     @controllers.Application.addProduct
 POST        /admin/product/add                     @controllers.Application.doAddProduct
 POST        /admin/product/$id<[0-9]+>/copy        @controllers.Application.doAddCopy(id: Long)
-GET         /admin/inventoryCheck                  @controllers.Application.viewInventoryCheck
 GET         /admin/inventoryCheck.json             @controllers.Application.icjson
 GET         /admin/person.list.json                @controllers.Application.search(searchTerm: String)
 GET         /admin/person.photo                    @controllers.Application.photo(id: Long)
-GET         /admin/person                          @controllers.Application.person
 GET         /admin/json/person/$id<[0-9]+>         @controllers.Application.specificPerson(id: Long)
 
 # Map static resources from the /public folder to the /assets URL path

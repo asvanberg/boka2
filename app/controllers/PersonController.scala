@@ -16,10 +16,6 @@ trait PersonController {
     }
   }
 
-  def person = Action { implicit request ⇒
-    Ok(views.html.admin.person.index())
-  }
-
   def specificPerson(id: Long) = InterpretedAction { request ⇒
     daisy.getPerson(id) map { person ⇒
       person.fold[Result](NotFound)(p ⇒ Ok(Json.toJson(p)))

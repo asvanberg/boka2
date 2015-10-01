@@ -7,26 +7,17 @@ import models._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.I18nSupport
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Result}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import views.html._
+import util.free._
 
 import scalaz.std.option._
 import scalaz.syntax.all._
 import scalaz.{-\/, \/-}
 
 trait ProductController {
-  this: Controller with Security with Interpreter with I18nSupport ⇒
-
-  private val productDataForm = Form(mapping(
-    "name" → nonEmptyText,
-    "description" → optional(text)
-  )(ProductData.apply)(ProductData.unapply))
-
-  def addProduct = Authenticated { implicit request ⇒
-    Ok(admin.product.add(productDataForm))
-  }
+  this: Controller with Interpreter with I18nSupport ⇒
 
   def doAddProduct = InterpretedAction(validation[ProductData]) { implicit request ⇒
     inventory.addProduct(request.body) map {
@@ -61,7 +52,6 @@ trait ProductController {
   }
 
   def doEditProduct(id: Long) = InterpretedAction(validation[ProductData]) { implicit request ⇒
-    import _root_.util.free._
     for {
       optProduct ← inventory.findProduct(id)
       result ← optProduct traverseFC { oldProduct ⇒

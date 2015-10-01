@@ -12,10 +12,6 @@ import scalaz.syntax.applicative._
 trait InventoryCheckController {
   this: Controller with Interpreter with I18nSupport ⇒
 
-  def viewInventoryCheck = InterpretedAction { implicit request ⇒
-    Ok(views.html.admin.inventoryCheck()).pure[Program]
-  }
-
   def icjson = InterpretedAction { implicit request ⇒
     for {
       products ← inventory.listProducts

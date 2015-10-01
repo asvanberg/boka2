@@ -19,7 +19,7 @@ import scalaz.std.scalaFuture._
 import scalaz.std.option._
 
 class Application @Inject() (val database: Database, val messagesApi: MessagesApi, val client: WSClient, val configuration: Configuration)
-  extends Controller with ProductController with Security with Interpreter
+  extends Controller with ProductController with Interpreter
   with I18nSupport with InventoryCheckController with PersonController {
 
   def index = Action { implicit request ⇒

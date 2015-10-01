@@ -2,31 +2,12 @@ package controllers
 
 import algebra.{Auth, IsAdmin}
 import play.api.libs.json.{JsDefined, JsString}
-import play.api.mvc.Security.{Authenticated, AuthenticatedBuilder}
+import play.api.mvc.Security.Authenticated
 import play.api.mvc.{Controller, EssentialAction, Result}
 import util.free.pure
 
 import scalaz.Free.FreeC
 import scalaz.{Free, Inject}
-
-final case class User(name: String, principal: String)
-
-trait Security {
-  import Security._
-
-  object Authenticated extends AuthenticatedBuilder(rh ⇒
-    for {
-      principal ← rh.headers.get(principalHeader)
-      name ← rh.headers.get(nameHeader)
-    } yield User(name, principal)
-  )
-
-}
-
-object Security {
-  val principalHeader = "eduPersonPrincipalName"
-  val nameHeader = "cn"
-}
 
 trait JWTSecurity {
   this: Controller ⇒
