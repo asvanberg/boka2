@@ -94,7 +94,7 @@ productModule =
       product = ctrl.productDetails().product
       [
         m "h1", "Product details"
-        m.component form, {product: product, onsave: ctrl.save, oncancel: ctrl.editing.bind(this, false)} if ctrl.editing()
+        m.component form, {product: product, onsave: ctrl.save, oncancel: -> m.route "/product/#{product().id()}"} if ctrl.editing()
         m "form", [
           m "a.btn.btn-link.pull-right", {onclick: ctrl.editing.bind this, true}, "Edit"
           m ".form-group", [
