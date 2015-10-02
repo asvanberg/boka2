@@ -53,7 +53,10 @@ search =
       m ".list-group", [
         ctrl.list().slice(0, 10).map (person) ->
           m "a.list-group-item", {href: "/person/#{person.id()}", config: m.route}, [
-            m "img.pull-right", {src: "/admin/person.photo?id=#{person.id()}", style: "max-height: 40px"}
+            m "img.pull-right.img-rounded",
+              src: "/admin/person.photo?id=#{person.id()}"
+              style: "max-height: 44px"
+              onerror: (e) -> e.target.style.display = "none"
             m "h4.list-group-item-heading", "#{person.firstName()} #{person.lastName()}"
             m "small.list-group-item-text", "<#{person.email()}>" if person.email()
             m ".clearfix"
