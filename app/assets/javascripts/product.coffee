@@ -103,14 +103,14 @@ productModule =
           ]
           m ".form-group", [
             m "label.control-label", "Description"
-            m "p.form-control-static", product().description() || m "i", "None"
+            m "p.form-control-static", product().description() or m "i", "None"
           ]
         ] unless ctrl.editing()
       ]
 
 form =
   controller: (args) ->
-    @product = args.product || m.prop new Product
+    @product = args.product or m.prop new Product
     @error = m.prop {}
     return @
   view: (ctrl, args) ->
