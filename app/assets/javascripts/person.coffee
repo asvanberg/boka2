@@ -41,13 +41,7 @@ search =
     {
       list: list
       search: debounce(
-        (term) ->
-          selected = [].slice.call(document.getElementById("people").options).find (option) ->
-             option.value is term
-          if selected
-            m.route("/person/#{selected.getAttribute("pid")}")
-          else
-            Person.search(term).then(list)
+        (term) -> Person.search(term).then(list)
         300
       )
     }
@@ -55,14 +49,16 @@ search =
   view: (ctrl) ->
     [
       m("h1", "Person information")
-      m("input.form-control[list=people]", {onkeyup: m.withAttr("value", ctrl.search)})
-      m("datalist#people", [
+      m("input.form-control", {onkeyup: m.withAttr("value", ctrl.search)})
+      m ".list-group", [
         ctrl.list().slice(0, 10).map (person) ->
-          m(
-            "option[value=#{person.firstName()} #{person.lastName()} <#{person.email()}>]"
-            {pid: person.id(), key: person.id()}
-          )
-      ])
+          m "a.list-group-item", {href: "/person/#{person.id()}", config: m.route}, [
+            m "img.pull-right", {src: "/admin/person.photo?id=#{person.id()}", style: "max-height: 40px"}
+            m "h4.list-group-item-heading", "#{person.firstName()} #{person.lastName()}"
+            m "small.list-group-item-text", "<#{person.email()}>" if person.email()
+            m ".clearfix"
+          ]
+      ]
     ]
 
 personComponent =
