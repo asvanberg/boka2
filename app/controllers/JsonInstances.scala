@@ -3,6 +3,7 @@ package controllers
 import controllers.ValidationReads._
 import models._
 import play.api.libs.json._
+import scalaz.NonEmptyList
 import scalaz.std.function._
 import scalaz.syntax.monad._
 
@@ -28,11 +29,12 @@ trait JsonWrites {
 }
 
 trait JsonReads {
-  // All strings we want should be non-empty, use Option[String] otherwise
-  implicit val nonEmptyStringRead: Reads[String] = Reads.StringReads.filter(_.trim.nonEmpty)
+  implicit val nonEmptyStringRead: Reads[String] = Reads.StringReads.map(_.trim)
 
   implicit val productDataVReads: ValidationParser[ProductData] = for {
-    name ← read[String]("name", "Name is required")
+    name ← read[String]("name", "Name is required") andThen {
+      _.ensure(NonEmptyList("name" → "Name must not be empty"))(_.nonEmpty)
+    }
     description ← read[Option[String]]("description", "Invalid description")
   } yield {
       (name |@| description)(ProductData)
