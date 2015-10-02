@@ -42,11 +42,8 @@ object JWT extends (JsValue ⇒ JWT) {
   private def parseJson(str: Array[Byte]): Option[JsValue] = {
     import com.fasterxml.jackson.core.JsonParseException
     import com.fasterxml.jackson.databind.JsonMappingException
-    try {
-      Some(Json.parse(str))
-    }
-    catch {
-      case _: JsonParseException | _: JsonMappingException ⇒ None
-    }
+    import scala.util.control.Exception._
+
+    catching(classOf[JsonParseException], classOf[JsonMappingException]) opt Json.parse(str)
   }
 }
