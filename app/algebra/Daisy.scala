@@ -32,6 +32,9 @@ class Daisy0[F[_]](implicit I: Inject[Daisy, F]) {
 object Daisy {
   final case class Configuration(host: String, port: Int, username: String, password: String)
 
+  private val Personnummer = "(\\d{6})\\-(\\d{4})".r
+  private val AccessCard = "(\\d{3,})".r
+
   def Interpreter(implicit ec: ExecutionContext) = new (Daisy ~> ({type λ[α] = Kleisli[Future, (WSClient, Configuration), α]})#λ) {
     override def apply[A](fa: Daisy[A]): Kleisli[Future, (WSClient, Configuration), A] = Kleisli {
       case (client, Configuration(host, port, username, password)) ⇒
@@ -41,11 +44,16 @@ object Daisy {
 
         fa match {
           case SearchPeople(term) ⇒
+            val searchParameter = term match {
+              case Personnummer(birthday, extraDigits) ⇒ "personnummer" → s"$birthday-$extraDigits"
+              case AccessCard(number) ⇒ "cardNumber" → number
+              case _ ⇒ "fullname" → term
+            }
             f("person")
               .withHeaders(HeaderNames.ACCEPT → MimeTypes.JSON)
-              .withQueryString("fullname" → term)
+              .withQueryString(searchParameter)
               .get()
-              .map(r ⇒ {println(r); r.json.as[List[Person]]})
+              .map(_.json.as[List[Person]])
           case GetPerson(id) ⇒
             f(s"person/$id")
               .withHeaders(HeaderNames.ACCEPT → MimeTypes.JSON)
