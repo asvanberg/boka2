@@ -38,14 +38,14 @@ productModule =
   add:
     controller: () ->
       @product = m.prop new Product
-      @add = (product) =>
+      @add = (product) ->
         m.request(
           method: jsRoutes.controllers.Application.doAddProduct().method
           url: jsRoutes.controllers.Application.doAddProduct().url
           data: product
           type: Product
         ).then (product) -> m.route "/product/#{product.id()}"
-      return @
+      return
     view: (ctrl) ->
       [
         m "h1", "Add product"
