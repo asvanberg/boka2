@@ -11,7 +11,7 @@ class Person
       url: jsRoutes.controllers.Application.specificPerson(id).url
       type: Person
       extract: (xhr) ->
-        if xhr.status == 200 then xhr.responseText
+        if xhr.status is 200 then xhr.responseText
         else xhr.status
     )
 

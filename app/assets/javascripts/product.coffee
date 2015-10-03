@@ -112,7 +112,7 @@ form =
   controller: (args) ->
     @product = args.product or m.prop new Product
     @error = m.prop {}
-    return @
+    return
   view: (ctrl, args) ->
     product = ctrl.product()
     m "form", {onsubmit: (e) -> e.preventDefault(); args.onsave(product).then(null, ctrl.error)}, [
