@@ -52,7 +52,7 @@ search =
       m("input.form-control", {onkeyup: m.withAttr("value", ctrl.search)})
       m ".list-group", [
         ctrl.list().slice(0, 10).map (person) ->
-          m "a.list-group-item", {href: "/person/#{person.id()}", config: m.route}, [
+          m "a.list-group-item", {href: "/person/#{person.id()}", config: m.route, key: person.id()}, [
             m "img.pull-right.img-rounded",
               src: "/admin/person.photo?id=#{person.id()}"
               style: "max-height: 44px"
