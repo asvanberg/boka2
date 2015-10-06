@@ -7,24 +7,27 @@ import play.api.mvc.Controller
 import util.free._
 
 import scalaz.std.list._
-import scalaz.syntax.applicative._
 
 trait InventoryCheckController {
-  this: Controller with Interpreter with I18nSupport ⇒
+  this: Controller with Interpreter with I18nSupport with JWTSecurity ⇒
 
-  def icjson = InterpretedAction { implicit request ⇒
-    for {
-      products ← inventory.listProducts
-      result ← products.traverseFC { product ⇒
+  def icjson = authenticated { jwt ⇒
+    InterpretedAction { implicit request ⇒
+      isAdmin(jwt) {
         for {
-          copies ← inventory.getCopies(product)
-          result ← copies.traverseFC { copy ⇒
+          products ← inventory.listProducts
+          result ← products.traverseFC { product ⇒
             for {
-              status ← Copy.status[Boka2](copy)
-            } yield InventoryCheckCopy(product, copy, status)
+              copies ← inventory.getCopies(product)
+              result ← copies.traverseFC { copy ⇒
+                for {
+                  status ← Copy.status[Boka2](copy)
+                } yield InventoryCheckCopy(product, copy, status)
+              }
+            } yield result
           }
-        } yield result
+        } yield Ok(Json.toJson(result.flatten))
       }
-    } yield Ok(Json.toJson(result.flatten))
+    }
   }
 }

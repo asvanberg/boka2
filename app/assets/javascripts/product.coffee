@@ -5,14 +5,14 @@ class Product
     @description = m.prop data?.description or ""
 
   @list: ->
-    m.request
+    m.secureRequest
       method: jsRoutes.controllers.Application.listProducts().method
       url: jsRoutes.controllers.Application.listProducts().url
       type: Product
       background: true
 
   @save: (product) ->
-    m.request
+    m.secureRequest
       method: jsRoutes.controllers.Application.doEditProduct(product.id()).method
       url: jsRoutes.controllers.Application.doEditProduct(product.id()).url
       data: product
@@ -39,7 +39,7 @@ productModule =
     controller: () ->
       @product = m.prop new Product
       @add = (product) ->
-        m.request(
+        m.secureRequest(
           method: jsRoutes.controllers.Application.doAddProduct().method
           url: jsRoutes.controllers.Application.doAddProduct().url
           data: product

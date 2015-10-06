@@ -3,9 +3,10 @@
     var hash = m.route.parseQueryString(window.location.hash.substring(1));
     if (hash && hash.id_token) {
         sessionStorage.setItem("id_token", hash.id_token)
-        document.location.replace('@routes.Application.listProducts')
+        var route = hash.state
+        document.location.replace('@{routes.Application.index}?' + route)
     }
     else {
-        document.location.replace('@routes.Application.login')
+        document.location.replace('@{routes.Application.index}?/login')
     }
 </script>

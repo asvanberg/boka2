@@ -11,7 +11,7 @@ m?.secureRequest ?= (options) ->
   deferred = m.deferred()
   m.request(options)
     .then deferred.resolve, (status) ->
-      if status is 401 then m.route("/login")
+      if status is 401 then m.route "/login", return: m.route()
       else if status is 403 then m.route("/forbidden")
       else deferred.reject(status)
   deferred.promise

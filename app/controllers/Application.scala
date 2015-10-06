@@ -18,21 +18,18 @@ import scala.concurrent.Await
 import scalaz._
 import scalaz.std.scalaFuture._
 import scalaz.std.option._
+import scalaz.syntax.apply._
 
 class Application @Inject() (val database: Database, val messagesApi: MessagesApi, val client: WSClient, val configuration: Configuration)
   extends Controller with ProductController with Interpreter
-  with I18nSupport with InventoryCheckController with PersonController {
+  with I18nSupport with InventoryCheckController with PersonController
+  with JWTSecurity {
 
   def index = Action { implicit request ⇒
-    Ok(views.html.admin.index())
-  }
-
-  def login = Action { implicit request ⇒
     def cfgVar(k: String) = configuration.getString(k)
-    import scalaz.syntax.apply._
     val auth0Config = ^^(cfgVar("AUTH0_CALLBACK_URL"), cfgVar("AUTH0_CLIENT_ID"), cfgVar("AUTH0_DOMAIN"))(Auth0Configuration)
     auth0Config.fold[Result](ServiceUnavailable) { config ⇒
-      Ok(views.html.admin.login(config))
+      Ok(views.html.admin.index(config))
     }
   }
 
@@ -71,6 +68,8 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
       Daisy.Configuration(host, port, username, password)
     }
   }
+
+  override def secret: String = configuration.getString("AUTH0_CLIENT_SECRET").getOrElse(sys.error("Auth0 secret not configured"))
 }
 
 object Application {

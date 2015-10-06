@@ -5,7 +5,7 @@ class Copy
     @status = m.prop data.status
 
   @list: ->
-    m.request(
+    m.secureRequest(
       method: jsRoutes.controllers.Application.icjson().method
       url: jsRoutes.controllers.Application.icjson().url
       type: Copy
