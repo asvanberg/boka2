@@ -29,7 +29,7 @@ class ProductDetails
     @copies = m.prop (new Copy copy for copy in data.copies)
 
   @get: (id) ->
-    m.request
+    m.secureRequest
       method: jsRoutes.controllers.Application.viewProduct(id).method
       url: jsRoutes.controllers.Application.viewProduct(id).url
       type: ProductDetails
