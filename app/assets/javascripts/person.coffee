@@ -53,10 +53,14 @@ image =
 search =
   controller: ->
     list = m.prop([])
+    lastSearch = m.prop ""
     {
+      selectedIndex: m.prop 0
       list: list
       search: debounce(
-        (term) -> Person.search(term).then(list)
+        (term) ->
+          Person.search(term).then(list) unless term == lastSearch()
+          lastSearch term
         300
       )
     }
@@ -64,19 +68,35 @@ search =
   view: (ctrl) ->
     [
       m("h1", "Person information")
-      m("input.form-control", {onkeyup: m.withAttr("value", ctrl.search)})
+      m "input[placeholder=Search...].form-control",
+        config: (el, init) -> if not init then el.focus()
+        onkeyup: m.withAttr("value", ctrl.search)
+        onkeydown: (e) ->
+          idx = ctrl.selectedIndex()
+          switch e.keyCode
+            when 38 then ctrl.selectedIndex(Math.max(idx - 1, 0))
+            when 40 then ctrl.selectedIndex(Math.min(idx + 1, 9, ctrl.list().length - 1))
+            when 13
+              person = ctrl.list()[idx]
+              m.route "/person/#{person.id()}" if person
+          e.preventDefault() if e.keyCode is 38 or e.keyCode is 40
       m ".list-group", [
-        ctrl.list().slice(0, 10).map (person) ->
-          m "a.list-group-item", {href: "/person/#{person.id()}", config: m.route, key: person.id()}, [
-            m.component image,
-              class: "pull-right img-rounded"
-              person: person
-              style: "max-height: 44px"
-              onerror: (e) -> e.target.style.display = "none"
-            m "h4.list-group-item-heading", "#{person.firstName()} #{person.lastName()}"
-            m "small.list-group-item-text", "<#{person.email()}>" if person.email()
-            m ".clearfix"
-          ]
+        ctrl.list().slice(0, 10).map (person, index) ->
+          m "a.list-group-item",
+            href: "/person/#{person.id()}"
+            config: m.route
+            key: person.id()
+            class: if index == ctrl.selectedIndex() then "active" else ""
+            [
+              m.component image,
+                class: "pull-right img-rounded"
+                person: person
+                style: "max-height: 44px"
+                onerror: (e) -> e.target.style.display = "none"
+              m "h4.list-group-item-heading", "#{person.firstName()} #{person.lastName()}"
+              m "small.list-group-item-text", "<#{person.email()}>" if person.email()
+              m ".clearfix"
+            ]
       ]
     ]
 
