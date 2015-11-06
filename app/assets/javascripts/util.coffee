@@ -6,12 +6,12 @@ m?.secureRequest ?= (options) ->
 
   options.extract = (xhr) ->
     if xhr.status is 200 then xhr.responseText
-    else xhr.status
+    else "{\"status\": #{xhr.status}, \"body\": #{xhr.responseText or "\"\""}}"
 
   deferred = m.deferred()
   m.request(options)
-    .then deferred.resolve, (status) ->
-      if status is 401 then m.route "/login", return: m.route()
-      else if status is 403 then m.route("/forbidden")
-      else deferred.reject(status)
+    .then deferred.resolve, (d) ->
+      if d.status is 401 then m.route "/login", return: m.route()
+      else if d.status is 403 then m.route("/forbidden")
+      else deferred.reject(d.body)
   deferred.promise
