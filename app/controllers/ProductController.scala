@@ -4,8 +4,6 @@ import controllers.json._
 import models.Copy.IdentifierNotUnique
 import models.Product.DuplicateName
 import models._
-import play.api.data.Form
-import play.api.data.Forms._
 import play.api.i18n.I18nSupport
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
@@ -81,21 +79,19 @@ trait ProductController {
     }
   }
 
-  private val copyForm = Form(single("barcode" → nonEmptyText))
-
-  def doAddCopy(id: Long) = InterpretedAction { implicit request ⇒
-    withProductDetails(id) { details ⇒
-      val feedback = copyForm.bindFromRequest.fold(
-        hasErrors ⇒ ("error" → "Invalid barcode").pure[Program],
-        barcode ⇒
-          inventory.addCopy(details.product, CopyData(barcode, None)) map {
+  def doAddCopy(id: Long) = authenticated { jwt ⇒
+    InterpretedAction(validation[CopyData]) { implicit request ⇒
+      for {
+        optProduct ← inventory findProduct id
+        result ← optProduct traverseFC { product ⇒
+          inventory addCopy (product, request.body) map {
             case -\/(IdentifierNotUnique(_)) ⇒
-              "error" → "There is already another copy with that barcode"
+              Conflict(error("barcode" → "There is another copy with the same barcode"))
             case \/-(copy) ⇒
-              "success" → "Copy added"
+              Ok(Json.toJson(copy))
           }
-      )
-      feedback map { Redirect(routes.Application.viewProduct(id)).flashing(_) }
+        }
+      } yield result getOrElse NotFound
     }
   }
 }

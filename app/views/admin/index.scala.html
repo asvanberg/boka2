@@ -16,6 +16,7 @@
         </script>
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/mithril.min.js")"></script>
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/util.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.versioned("javascripts/modal.js")"></script>
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/inventoryCheck.js")"></script>
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/person.js")"></script>
         <script type="text/javascript" src="@routes.Assets.versioned("javascripts/product.js")"></script>
@@ -27,7 +28,8 @@
             routes.javascript.Application.doAddProduct,
             routes.javascript.Application.listProducts,
             routes.javascript.Application.viewProduct,
-            routes.javascript.Application.doEditProduct
+            routes.javascript.Application.doEditProduct,
+            routes.javascript.Application.doAddCopy
         )
     </head>
     <body>

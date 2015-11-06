@@ -37,6 +37,15 @@ trait JsonReads {
     }
     description ← read[Option[String]]("description", "Invalid description")
   } yield {
-      (name |@| description)(ProductData)
+    (name |@| description)(ProductData)
+  }
+
+  implicit val copyDataVReads: ValidationParser[CopyData] = for {
+    name ← read[String]("barcode", "Barcode is required") andThen {
+      _.ensure(NonEmptyList("barcode" → "Barcode must not be empty"))(_.nonEmpty)
     }
+    description ← read[Option[String]]("note", "Invalid note")
+  } yield {
+    (name |@| description)(CopyData)
+  }
 }

@@ -10,7 +10,7 @@ layout.controller = (component) ->
 layout.view = (ctrl) ->
   m(".container", [
     m(".row", [
-      m(".col-sm-9.animated.fadeIn", ctrl.content())
+      m(".col-sm-9.animated.fadeIn", {style: {"z-index": 100}}, ctrl.content())
       m(".col-sm-3", [
         m("h4", "Products")
         m("ul", [

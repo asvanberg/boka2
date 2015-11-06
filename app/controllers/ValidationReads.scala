@@ -2,6 +2,7 @@ package controllers
 
 import play.api.libs.json.{JsValue, Reads, JsPath}
 
+import scala.annotation.implicitNotFound
 import scalaz._
 import scalaz.syntax.std.option._
 
@@ -10,6 +11,7 @@ trait ValidationReads[A] {
 }
 
 object ValidationReads {
+  @implicitNotFound("Try to define a play.api.libs.json.Reads[${T}]")
   type ValidationParser[T] = JsValue ⇒ ValidationNel[(String, String), T]
 
   implicit def optionValidationReads[A: Reads] = new ValidationReads[Option[A]] {

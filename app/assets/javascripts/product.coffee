@@ -1,3 +1,7 @@
+exports = this
+
+dialog = new exports.Modal
+
 class Product
   constructor: (data) ->
     @id = m.prop data?.id
@@ -22,6 +26,14 @@ class Copy
   constructor: (data) ->
     @barcode = m.prop data.barcode
     @note = m.prop data.note
+
+  @add: (product, copyData) ->
+    m.secureRequest(
+      method: jsRoutes.controllers.Application.doAddCopy(product.id()).method
+      url: jsRoutes.controllers.Application.doAddCopy(product.id()).url
+      data: copyData
+      type: Copy
+    )
 
 class ProductDetails
   constructor: (data) ->
@@ -90,6 +102,11 @@ productModule =
               productDetails().product(product)
               editing(false)
           )
+      addCopy: (copyData) ->
+        Copy.add productDetails().product(), copyData
+          .then (copy) ->
+            productDetails().copies().push(copy)
+            dialog.hide()
     view: (ctrl) ->
       product = ctrl.productDetails().product
       [
@@ -106,6 +123,58 @@ productModule =
             m "p.form-control-static", product().description() or m "i", "None"
           ]
         ] unless ctrl.editing()
+        m "h2", "Copies"
+        if ctrl.productDetails().copies().length
+          m "table.table.table-striped.table-hover", [
+            m "thead", [
+              m "tr", [
+                m "th", "Barcode"
+                m "th.text-right", "Status"
+              ]
+            ]
+            m "tbody", [
+              ctrl.productDetails().copies().sort((a, b) -> a.barcode() > b.barcode()).map (copy) ->
+                m "tr.animated.flash", {key: copy.barcode()}, [
+                  m "td", "#{copy.barcode()}"
+                  m "td.text-right", m "span.label.label-default", "Unknown"
+                ]
+            ]
+          ]
+        else
+          m "p.alert.alert-warning", "There are no copies of this product, which means that nobody can borrow it."
+        m "button.btn-link", {onclick: dialog.show.bind dialog}, "Add copy"
+        dialog.view (-> "Add copy of #{product().name()}"),
+          body: ->
+            m.component copyForm,
+              onsubmit: (e, copyData) ->
+                e.preventDefault()
+                ctrl.addCopy(copyData)
+              oncancel: dialog.hide.bind dialog
+      ]
+
+copyForm =
+  controller: ->
+    @barcode = m.prop ""
+    @error = m.prop {}
+    return
+  view: (ctrl, args) ->
+    m "form",
+      onsubmit: (e) ->
+        args.onsubmit(e,
+          barcode: ctrl.barcode
+        ).then(null, ctrl.error)
+      [
+        if ctrl.error().fields then m ".alert.alert-danger", [
+          m "ul", [m "li", message for _, message of ctrl.error().fields]
+        ]
+        m ".form-group", {class: if ctrl.error().fields?.barcode then "has-error" else ""}, [
+          m "label[for=barcode].control-label", "Barcode"
+          m "input#barcode[type=text][required][autofocus][autocomplete=off].form-control",
+            config: (el, init) -> el.focus() unless init
+            oninput: m.withAttr "value", ctrl.barcode
+        ]
+        m "button.btn.btn-primary[type=submit]", "Add"
+        m "button.btn.btn-link[type=button]", {onclick: args.oncancel}, "Cancel" if args.oncancel
       ]
 
 form =
@@ -131,5 +200,4 @@ form =
       m "a.btn.btn-link", {onclick: args.oncancel}, "Cancel" if args.oncancel
     ]
 
-exports = this
 exports.product = productModule
