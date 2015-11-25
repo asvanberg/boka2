@@ -97,7 +97,7 @@ class CopyDetails
                 "Add"
           ]
         ]
-        if ctrl.copies().length
+        if ctrl.copies().length or ctrl.pending().length
           m "table.table.table-striped.table-hover", [
             m "thead", [
               m "tr", [
