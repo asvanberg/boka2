@@ -49,12 +49,12 @@ object LoanInterpreter extends (LoanManagement ~> ConnectionIO) {
     import anorm.SqlParser._
     import java.time.LocalDateTime
 
-    val ongoing: RowParser[Ongoing] = str("identifier") ~ str("borrower") ~ get[LocalDateTime]("borrowed") map {
-      case identifier ~ borrower ~ borrowed ⇒ Ongoing(identifier, Principal(borrower), borrowed.toLocalDate)
+    val ongoing: RowParser[Ongoing] = str("identifier") ~ long("borrower") ~ get[LocalDateTime]("borrowed") map {
+      case identifier ~ borrower ~ borrowed ⇒ Ongoing(identifier, PersonId(borrower), borrowed.toLocalDate)
     }
 
-    val returned: RowParser[Returned] = str("identifier") ~ str("borrower") ~ get[LocalDateTime]("borrowed") ~ get[LocalDateTime]("returned") map {
-      case identifier ~ borrower ~ borrowed ~ returnDate ⇒ Returned(identifier, Principal(borrower), borrowed.toLocalDate, returnDate.toLocalDate)
+    val returned: RowParser[Returned] = str("identifier") ~ long("borrower") ~ get[LocalDateTime]("borrowed") ~ get[LocalDateTime]("returned") map {
+      case identifier ~ borrower ~ borrowed ~ returnDate ⇒ Returned(identifier, PersonId(borrower), borrowed.toLocalDate, returnDate.toLocalDate)
     }
   }
 
@@ -62,8 +62,8 @@ object LoanInterpreter extends (LoanManagement ~> ConnectionIO) {
     import anorm.ToStatement
     import java.sql.{Date, PreparedStatement}
 
-    implicit val principalToStatement: ToStatement[Principal] = new ToStatement[Principal] {
-      override def set(s: PreparedStatement, index: Int, v: Principal): Unit = s.setString(index, v.username)
+    implicit val principalToStatement: ToStatement[PersonId] = new ToStatement[PersonId] {
+      override def set(s: PreparedStatement, index: Int, v: PersonId): Unit = s.setLong(index, v.id)
     }
 
     implicit val localDateToStatement: ToStatement[LocalDate] = new ToStatement[LocalDate] {

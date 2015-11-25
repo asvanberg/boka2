@@ -35,6 +35,17 @@ class Copy
       type: Copy
     )
 
+  borrow: (borrower) =>
+    m.secureRequest(
+      method: jsRoutes.controllers.Application.recordLoan().method
+      url: jsRoutes.controllers.Application.recordLoan().url
+      data: {
+        borrower: borrower.id()
+        barcode: @barcode()
+        borrowed: Date.now()
+      }
+    )
+
 class ProductDetails
   constructor: (data) ->
     @product = m.prop new Product data.product
@@ -200,4 +211,6 @@ form =
       m "a.btn.btn-link", {onclick: args.oncancel}, "Cancel" if args.oncancel
     ]
 
+exports.Copy = Copy
+exports.Product = Product
 exports.product = productModule

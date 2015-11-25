@@ -14,6 +14,8 @@ GET         /admin/inventoryCheck.json             @controllers.Application.icjs
 GET         /admin/person.list.json                @controllers.Application.search(searchTerm: String)
 GET         /admin/person.photo                    @controllers.Application.photo(id: Long)
 GET         /admin/json/person/$id<[0-9]+>         @controllers.Application.specificPerson(id: Long)
+GET         /admin/copy/details/:barcode           @controllers.Application.copyDetails(barcode)
+POST        /admin/copy/borrow                     @controllers.Application.recordLoan
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                          controllers.Assets.at(path="/public", file)

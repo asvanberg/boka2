@@ -11,21 +11,21 @@ import scalaz.\/.{left, right}
 
 sealed trait Loan {
   def copyId: Identifier
-  def borrower: Principal
+  def borrower: PersonId
   def borrowed: LocalDate
 }
 
-final case class Ongoing(copyId: Identifier, borrower: Principal, borrowed: LocalDate) extends Loan
-final case class Returned(copyId: Identifier, borrower: Principal, borrowed: LocalDate, returned: LocalDate) extends Loan
+final case class Ongoing(copyId: Identifier, borrower: PersonId, borrowed: LocalDate) extends Loan
+final case class Returned(copyId: Identifier, borrower: PersonId, borrowed: LocalDate, returned: LocalDate) extends Loan
 
 object Loan {
 
   final case class CopyNotAvailable(ongoing: Ongoing)
 
   def borrow[F[_]](
-    copy: Copy,
-    borrower: Principal,
-    loaned: LocalDate
+                    copy: Copy,
+                    borrower: PersonId,
+                    loaned: LocalDate
   )(implicit L: Loans[F]): FreeC[F, CopyNotAvailable \/ Ongoing] = {
     L.current(copy) flatMap {
       case Some(ongoing) ⇒ pure(left(CopyNotAvailable(ongoing)))

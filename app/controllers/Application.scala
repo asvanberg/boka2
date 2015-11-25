@@ -20,7 +20,7 @@ import scalaz.std.scalaFuture._
 class Application @Inject() (val database: Database, val messagesApi: MessagesApi, val client: WSClient, val auth0Config: Auth0Configuration, val daisyConfig: Daisy.Configuration)
   extends Controller with ProductController with Interpreter
   with I18nSupport with InventoryCheckController with PersonController
-  with JWTSecurity {
+  with JWTSecurity with LoanController {
 
   def index = Action { implicit request ⇒
     Ok(views.html.admin.index(auth0Config))
