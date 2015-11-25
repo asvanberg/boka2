@@ -49,11 +49,11 @@ object LoanInterpreter extends (LoanManagement ~> ConnectionIO) {
     import anorm.SqlParser._
     import java.time.LocalDateTime
 
-    val ongoing: RowParser[Ongoing] = str("identifier") ~ str("borrower") ~ scalar[LocalDateTime] map {
+    val ongoing: RowParser[Ongoing] = str("identifier") ~ str("borrower") ~ get[LocalDateTime]("borrowed") map {
       case identifier ~ borrower ~ borrowed ⇒ Ongoing(identifier, Principal(borrower), borrowed.toLocalDate)
     }
 
-    val returned: RowParser[Returned] = str("identifier") ~ str("borrower") ~ scalar[LocalDateTime] ~ scalar[LocalDateTime] map {
+    val returned: RowParser[Returned] = str("identifier") ~ str("borrower") ~ get[LocalDateTime]("borrowed") ~ get[LocalDateTime]("returned") map {
       case identifier ~ borrower ~ borrowed ~ returnDate ⇒ Returned(identifier, Principal(borrower), borrowed.toLocalDate, returnDate.toLocalDate)
     }
   }
