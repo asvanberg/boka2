@@ -59,17 +59,7 @@ class CopyDetails
           m.component exports.components.autocomplete.person,
             onselect: ctrl.person
         else [
-          m.component exports.components.image.person,
-            class: "pull-right img-rounded"
-            person: ctrl.person()
-          m "dl", [
-            m "dt", "First name"
-            m "dd", ctrl.person().firstName()
-            m "dt", "Last name"
-            m "dd", ctrl.person().lastName()
-            m "dt", "Email"
-            m "dd", ctrl.person().email()
-          ]
+          m.component exports.components.details.person, ctrl.person
           m "button.btn.btn-link",
             onclick: -> ctrl.person null
             "Select another borrower"

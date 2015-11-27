@@ -11,29 +11,15 @@ search =
 
 personComponent =
   controller: ->
-    person = Person.get(m.route.param("id"))
-
-    {
-      person: person
-    }
-  view: (ctrl) ->
-    m("div", [
-      m("h1", "Person information")
-      m("p", "No person found") unless ctrl.person()
-      if ctrl.person() then m(".animated.fadeIn", [
-        m.component exports.components.image.person,
-          class: "pull-right img-rounded"
-          person: ctrl.person()
-        m("dl", [
-          m("dt", "First name")
-          m("dd", ctrl.person().firstName())
-          m("dt", "Last name")
-          m("dd", ctrl.person().lastName())
-          m("dt", "Email")
-          m("dd", ctrl.person().email())
-        ])
-      ])
-    ])
+    @person = exports.Person.get(m.route.param("id"))
+    return
+  view: (ctrl) -> [
+    m "h1", "Person information"
+    if not ctrl.person()
+      m "p", "No person found"
+    else
+      m.component exports.components.details.person, ctrl.person
+  ]
 
 exports.person =
   search: search
