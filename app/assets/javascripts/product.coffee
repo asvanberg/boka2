@@ -46,6 +46,16 @@ class Copy
       }
     )
 
+  return_: (returnDate) =>
+    m.secureRequest(
+      method: jsRoutes.controllers.Application.returnCopy().method
+      url: jsRoutes.controllers.Application.returnCopy().url
+      data: {
+        barcode: @barcode()
+        returnDate: returnDate
+      }
+    )
+
 class ProductDetails
   constructor: (data) ->
     @product = m.prop new Product data.product

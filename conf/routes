@@ -16,6 +16,7 @@ GET         /admin/person.photo                    @controllers.Application.phot
 GET         /admin/json/person/$id<[0-9]+>         @controllers.Application.specificPerson(id: Long)
 GET         /admin/copy/details/:barcode           @controllers.Application.copyDetails(barcode)
 POST        /admin/copy/borrow                     @controllers.Application.recordLoan
+POST        /admin/copy/return                     @controllers.Application.returnCopy
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                          controllers.Assets.at(path="/public", file)

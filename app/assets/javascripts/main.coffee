@@ -19,6 +19,7 @@ layout.view = (ctrl) ->
           m("li", m("a[href='/person']", {config: m.route}, "Person"))
           m("li", m("a[href='/inventoryCheck']", {config: m.route}, "Inventory check"))
           m("li", m("a[href='/loan/record']", {config: m.route}, "Record loan"))
+          m("li", m("a[href='/loan/return']", {config: m.route}, "Return items"))
         ])
       ])
     ])
@@ -45,6 +46,7 @@ document.addEventListener "DOMContentLoaded", () ->
     "/product": layout(exports.product.list)
     "/product/:id": layout(exports.product.view)
     "/loan/record": layout(exports.loan.recordLoan)
+    "/loan/return": layout(exports.loan.returnLoan)
     "/login": view: login
     "/forbidden": view: forbidden
   })

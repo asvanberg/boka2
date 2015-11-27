@@ -40,6 +40,8 @@ trait JsonWrites {
   implicit val personId: Writes[PersonId] = Writes { x ⇒ Writes.LongWrites.writes(x.id) }
 
   implicit val ongoingWrites: Writes[Ongoing] = Json.writes[Ongoing]
+
+  implicit val returnedWrites: Writes[Returned] = Json.writes[Returned]
 }
 
 trait JsonReads {
@@ -66,4 +68,6 @@ trait JsonReads {
   implicit val personIdReads: Reads[PersonId] = Reads.LongReads map PersonId
 
   implicit val loanRequestReads: Reads[LoanRequest] = Json.reads[LoanRequest]
+
+  implicit val returnRequestReads: Reads[ReturnRequest] = Json.reads[ReturnRequest]
 }

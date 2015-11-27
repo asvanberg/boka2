@@ -134,3 +134,109 @@ class CopyDetails
       disabled: not ctrl.copies().length or not ctrl.person()
       "Record"
   ]
+
+(exports.loan ||= {}).returnLoan =
+  controller: ->
+    @person = m.prop null
+    @barcode = m.prop ""
+    @pending = m.prop []
+    @copies = m.prop []
+    @message = m.prop ""
+
+    @addBarcode = =>
+      @pending().push(@barcode())
+      if not @copies().some((c) => c.copy().barcode() == @barcode())
+        CopyDetails.get(@barcode())
+          .then(
+            (c) =>
+              @copies().push(c)
+              @pending().splice(@pending().indexOf(c.copy().barcode()), 1)
+            ((barcode) ->
+              @message "No item with barcode '#{barcode}'"
+              @pending().splice(@pending().indexOf(barcode), 1)
+            ).bind this, @barcode()
+          )
+          .then m.redraw
+      @barcode ""
+
+    @returnItems = =>
+      for c in @copies()
+        do (c) =>
+          c.copy().return_(Date.now())
+            .then(
+              -> c.status "ok"
+              -> c.status "error"
+            )
+
+    return
+  view: (ctrl) -> [
+    m "h1", "Return items"
+    m "ul", [
+      m "li", [
+        m "h2", "Scan items"
+        if ctrl.message()
+          m ".alert.alert-danger", [
+            m "button.close",
+              onclick: ctrl.message.bind this, ""
+              "×"
+            ctrl.message()
+          ]
+        m ".form-group", [
+          m "label.sr-only[for=barcode]", "Enter barcode"
+          m ".input-group", [
+            m "input.form-control[placeholder=Scan items...][id=barcode]",
+              onchange: m.withAttr "value", ctrl.barcode
+              value: ctrl.barcode()
+            m "span.input-group-btn",
+              m "button.btn.btn-default",
+                onclick: ctrl.addBarcode
+                "Add"
+          ]
+        ]
+        if ctrl.copies().length or ctrl.pending().length
+          m "table.table.table-striped.table-hover", [
+            m "thead", [
+              m "tr", [
+                m "th", "Barcode"
+                m "th", "Name"
+                m "th", m.trust "&nbsp;"
+              ]
+            ]
+            m "tbody", [
+              ctrl.copies().map (details) ->
+                m "tr",
+                  key: details.copy().barcode()
+                  class: switch details.status()
+                    when "available" then "warning"
+                    when "ok" then "success"
+                    when "error" then "danger"
+                    else ""
+                  [
+                    m "td", details.copy().barcode()
+                    m "td", details.product().name()
+                    m "td.text-right",
+                      switch details.status()
+                        when "available"
+                          m "a.right.animate[data-tooltip=This item is not out on loan]", m "span.glyphicon.glyphicon-warning-sign.text-warning"
+                        when "ok"
+                          m "span.glyphicon.glyphicon-ok.text-success"
+                        when "error"
+                          m "a.right.animate[data-tooltip=This item is not out on loan]", m "span.glyphicon.glyphicon-remove.text-danger"
+                        else m.trust "&nbsp;"
+                  ]
+              ctrl.pending().map (barcode) ->
+                m "tr",
+                  key: barcode
+                  [
+                    m "td", barcode
+                    m "td[colspan=2]", m "span.loading", m "span", "●"
+                  ]
+            ]
+          ]
+      ]
+    ]
+    m "button.btn.btn-primary",
+      onclick: ctrl.returnItems
+      disabled: not ctrl.copies().length
+      "Return"
+  ]

@@ -1,6 +1,6 @@
 import algebra.{Daisy0, Daisy, Auth}
 import controllers.ValidationReads.ValidationParser
-import models.{LoanManagement, Inventory, InventoryManagement}
+import models.{Loans, LoanManagement, Inventory, InventoryManagement}
 import play.api.libs.json.{JsValue, JsString, JsObject, Json}
 import play.api.mvc.{Results, BodyParsers, BodyParser}
 
@@ -15,6 +15,8 @@ package object controllers {
   type Program[A] = FreeC[Boka2, A]
 
   object inventory extends Inventory[Boka2]
+
+  object loans extends Loans[Boka2]
 
   object daisy extends Daisy0[Boka2]
 
