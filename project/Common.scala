@@ -4,7 +4,7 @@ import Keys._
 object Common {
   val settings: Seq[Setting[_]] = Seq(
     version := "1.0.0-SNAPSHOT",
-    scalaVersion := "2.11.6",
+    scalaVersion := "2.11.7",
     resolvers += Resolver.bintrayRepo("scalaz", "releases"),
     scalacOptions ++= Seq(
       "-deprecation",
