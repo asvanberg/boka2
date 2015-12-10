@@ -13,7 +13,7 @@ resolvers += Resolver.bintrayRepo("scalaz", "releases")
 libraryDependencies ++= Seq(
   jdbc,
   evolutions,
-  "com.typesafe.play" %% "anorm" % "2.4.0",
+  "com.typesafe.play" %% "anorm" % "2.5.0",
   cache,
   ws,
   specs2 % Test,
