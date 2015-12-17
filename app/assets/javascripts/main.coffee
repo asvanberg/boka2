@@ -38,7 +38,7 @@ forbidden = ->
 exports = this
 
 document.addEventListener "DOMContentLoaded", () ->
-  m.route(document.body, "/inventoryCheck", {
+  m.route(document.body, "/product", {
     "/person": layout(exports.person.search)
     "/person/:id": layout(exports.person.view)
     "/inventoryCheck": layout(exports.inventoryCheck)
