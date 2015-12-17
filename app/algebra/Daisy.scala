@@ -47,6 +47,7 @@ object Daisy {
             val searchParameter = term match {
               case Personnummer(birthday, extraDigits) ⇒ "personnummer" → s"$birthday-$extraDigits"
               case AccessCard(number) ⇒ "cardNumber" → number
+              case email if email contains "@" ⇒ "email" → email
               case _ ⇒ "fullname" → term
             }
             f("person")
@@ -54,6 +55,7 @@ object Daisy {
               .withQueryString(searchParameter)
               .get()
               .map(_.json.as[List[Person]])
+              .map(_.sortBy(_.firstName))
           case GetPerson(id) ⇒
             f(s"person/$id")
               .withHeaders(HeaderNames.ACCEPT → MimeTypes.JSON)
