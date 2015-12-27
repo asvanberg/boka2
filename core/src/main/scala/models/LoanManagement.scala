@@ -13,9 +13,9 @@ final case class ReturnLoan private[models] (ongoing: Ongoing, returned: LocalDa
 final case class History private[models] (copy: Copy) extends LoanManagement[List[Loan]]
 
 class Loans[F[_]](implicit I: Inject[LoanManagement, F]) {
-  type G[A] = Free.FreeC[F, A]
+  type G[A] = Free[F, A]
   
-  private def lift[A](a: LoanManagement[A]): G[A] = Free.liftFC(I.inj(a))
+  private def lift[A](a: LoanManagement[A]): G[A] = Free.liftF(I.inj(a))
 
   def current(copy: Copy): G[Option[Ongoing]] = lift(CurrentLoan(copy))
 

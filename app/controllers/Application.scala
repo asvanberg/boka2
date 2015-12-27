@@ -40,7 +40,7 @@ class Application @Inject() (val database: Database, val messagesApi: MessagesAp
       override def apply[X](fa: Boka2[X]): Compiled[X] =
         fa.run.fold(Interpreters.daisy.apply, _.run.fold(Interpreters.auth.apply, _.run.fold(Interpreters.inventory.apply, Interpreters.loans.apply)))
     }
-    val compiled = Free.runFC[Boka2, Compiled, Result](program)(interpreter)
+    val compiled = program.foldMap(interpreter)
     database.withTransaction { conn ⇒
       val c = Application.Configuration(conn, client, daisyConfig)
       // TODO: Fix something better, scalaz.Task?

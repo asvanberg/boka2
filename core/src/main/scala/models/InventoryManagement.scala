@@ -22,9 +22,9 @@ final case class AddCopy private[models] (product: Product, data: CopyData) exte
 final case class GetCopies private[models] (product: Product) extends InventoryManagement[List[Copy]]
 
 class Inventory[F[_]](implicit I: Inject[InventoryManagement, F]) {
-  type G[A] = Free.FreeC[F, A]
+  type G[A] = Free[F, A]
 
-  private def lift[A](a: InventoryManagement[A]): G[A] = Free.liftFC(I.inj(a))
+  private def lift[A](a: InventoryManagement[A]): G[A] = Free.liftF(I.inj(a))
 
   def addProduct(data: ProductData): G[Product.DuplicateName \/ Product] =
     uniqueName[G](data.name, listProducts)(lift(AddProduct(data)))

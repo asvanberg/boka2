@@ -5,8 +5,7 @@ import java.time.LocalDate
 import util.free._
 
 import scala.collection.immutable._
-import scalaz.Free.FreeC
-import scalaz.\/
+import scalaz.{Free, \/}
 import scalaz.\/.{left, right}
 
 sealed trait Loan {
@@ -26,17 +25,17 @@ object Loan {
                     copy: Copy,
                     borrower: PersonId,
                     loaned: LocalDate
-  )(implicit L: Loans[F]): FreeC[F, CopyNotAvailable \/ Ongoing] = {
+  )(implicit L: Loans[F]): Free[F, CopyNotAvailable \/ Ongoing] = {
     L.current(copy) flatMap {
       case Some(ongoing) ⇒ pure(left(CopyNotAvailable(ongoing)))
       case None ⇒ L.recordLoan(copy, borrower, loaned) map right
     }
   }
 
-  def returnLoan[F[_]](ongoing: Ongoing, returned: LocalDate)(implicit L: Loans[F]): FreeC[F, Returned] = {
+  def returnLoan[F[_]](ongoing: Ongoing, returned: LocalDate)(implicit L: Loans[F]): Free[F, Returned] = {
     L.returnLoan(ongoing, returned)
   }
 
-  def history[F[_]](copy: Copy)(implicit L: Loans[F]): FreeC[F, List[Loan]] =
+  def history[F[_]](copy: Copy)(implicit L: Loans[F]): Free[F, List[Loan]] =
     L.history(copy)
 }

@@ -18,9 +18,9 @@ object Person {
 }
 
 class Daisy0[F[_]](implicit I: Inject[Daisy, F]) {
-  type G[A] = Free.FreeC[F, A]
+  type G[A] = Free[F, A]
 
-  private def lift[A](a: Daisy[A]): G[A] = Free.liftFC(I.inj(a))
+  private def lift[A](a: Daisy[A]): G[A] = Free.liftF(I.inj(a))
 
   def getPerson(id: Long) = lift(GetPerson(id))
 
