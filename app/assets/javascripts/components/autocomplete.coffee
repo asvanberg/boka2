@@ -22,7 +22,11 @@ person =
       list: list
       search: debounce(
         (term) ->
-          exports.Person.search(term).then(list) unless term == lastSearch()
+          if term is ""
+            list []
+            m.redraw()
+          else if term isnt lastSearch()
+            exports.Person.search(term).then(list)
           lastSearch term
         300
       )

@@ -48,4 +48,24 @@ trait LoanController {
       }
     }
   }
+
+  def returnCopy = authenticated { jwt ⇒
+    InterpretedAction(parse.json[ReturnRequest]) { implicit request ⇒
+      isAdmin(jwt) {
+        for {
+          copy ← inventory findCopy request.body.barcode
+          ongoing ← copy traverseFC loans.current
+          returned ← ongoing traverseFC {
+            _ traverseFC { loans.returnLoan(_, request.body.returnDate)
+            }
+          }
+        }
+        yield returned match {
+          case Some(Some(r)) ⇒ Ok(Json.toJson(r))
+          case Some(None) ⇒ Conflict
+          case None => NotFound
+        }
+      }
+    }
+  }
 }
