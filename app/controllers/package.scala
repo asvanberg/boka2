@@ -5,13 +5,14 @@ import play.api.libs.json.{JsValue, JsString, JsObject, Json}
 import play.api.mvc.{Results, BodyParsers, BodyParser}
 
 import scala.concurrent.ExecutionContext
-import scalaz._
+import scalaz.{Failure, Success, Coproduct}
+import scalaz.Free.FreeC
 
 package object controllers {
   type F0[A] = Coproduct[InventoryManagement, LoanManagement, A]
   type F1[A] = Coproduct[Auth, F0, A]
   type Boka2[A] = Coproduct[Daisy, F1, A]
-  type Program[A] = Free[Boka2, A]
+  type Program[A] = FreeC[Boka2, A]
 
   object inventory extends Inventory[Boka2]
 
@@ -30,7 +31,7 @@ package object controllers {
         R.apply(json) match {
           case Success(a) => Right(a)
           case Failure(errors) =>
-            Left(Results.BadRequest(error(errors.head, errors.tail.toList: _*)))
+            Left(Results.BadRequest(error(errors.head, errors.tail: _*)))
         }
     }
   }

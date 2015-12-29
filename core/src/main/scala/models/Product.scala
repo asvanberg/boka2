@@ -3,7 +3,8 @@ package models
 import util.free._
 
 import scala.collection.immutable.List
-import scalaz.{Free, NonEmptyList}
+import scalaz.Free.FreeC
+import scalaz.NonEmptyList
 import scalaz.std.list._
 
 final case class Product(id: Long, data: ProductData) {
@@ -21,7 +22,7 @@ object Product extends ((Long, ProductData) ⇒ Product) {
   final case class Unavailable(borrowed: NonEmptyList[(Copy, Ongoing)]) extends Status
   final case class Available(available: NonEmptyList[Copy]) extends Status
 
-  def status[F[_]](product: Product)(implicit I: Inventory[F], L: Loans[F]): Free[F, Status] = {
+  def status[F[_]](product: Product)(implicit I: Inventory[F], L: Loans[F]): FreeC[F, Status] = {
     def deriveProductStatus(statuses: List[(Copy, Copy.Status)]): Status = {
       statuses.foldLeft[Status](NoCopies) { case (productStatus, (copy, copyStatus)) ⇒
         (productStatus, copyStatus) match {

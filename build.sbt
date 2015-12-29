@@ -17,17 +17,12 @@ libraryDependencies ++= Seq(
   cache,
   ws,
   specs2 % Test,
-  "org.specs2" %% "specs2-scalacheck" % "3.6.6-scalaz-7.2.0" % "test",
+  "org.specs2" %% "specs2-scalacheck" % "3.6" % "test",
+  "org.specs2" %% "specs2-junit" % "3.6" % "test",
   "org.typelevel" %% "shapeless-scalacheck" % "0.4" % "test",
   "org.webjars" %% "webjars-play" % "2.4.0-1",
   "org.webjars" % "bootstrap" % "3.3.4",
   "com.google.code.findbugs" % "jsr305" % "1.3.9" % "provided" // This is here to prevent scalac from failing on missing annotations in Guava's BaseEncoding
-)
-
-dependencyOverrides ++= Set(
-  "org.specs2" %% "specs2-junit" % "3.6.6-scalaz-7.2.0" % "test",
-  "org.specs2" %% "specs2-mock" % "3.6.6-scalaz-7.2.0" % "test",
-  "org.specs2" %% "specs2-core" % "3.6.6-scalaz-7.2.0" % "test"
 )
 
 wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Nothing, Wart.NonUnitStatements, Wart.AsInstanceOf, Wart.Any, Wart.Throw)

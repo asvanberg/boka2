@@ -28,9 +28,9 @@ class ProductSpecification extends Specification with ScalaCheck with Disjunctio
     }
   }
 
-  def evalEmpty[A](program: Free[InventoryManagement, A]) =
+  def evalEmpty[A](program: Free.FreeC[InventoryManagement, A]) =
     eval(program, InventoryState.empty)
 
-  def eval[A](program: Free[InventoryManagement, A], inventory: InventoryState) =
-    program.foldMap[({type l[a] = State[InventoryState, a]})#l](InventoryStateInterpreter).eval(inventory)
+  def eval[A](program: Free.FreeC[InventoryManagement, A], inventory: InventoryState) =
+    Free.runFC[InventoryManagement, ({type λ[α] = State[InventoryState, α]})#λ, A](program)(InventoryStateInterpreter).eval(inventory)
 }

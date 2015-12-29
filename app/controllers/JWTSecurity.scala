@@ -6,6 +6,7 @@ import play.api.mvc.Security.Authenticated
 import play.api.mvc.{Controller, EssentialAction, Result}
 import util.free.pure
 
+import scalaz.Free.FreeC
 import scalaz.{Free, Inject}
 
 trait JWTSecurity {
@@ -30,11 +31,11 @@ trait JWTSecurity {
     )(block)
   }
 
-  def isAdmin[F[_]](jwt: JWT)(block: ⇒ Free[F, Result])(implicit I: Inject[Auth, F]): Free[F, Result] =
+  def isAdmin[F[_]](jwt: JWT)(block: ⇒ FreeC[F, Result])(implicit I: Inject[Auth, F]): FreeC[F, Result] =
     jwt.claims \ "sub" match {
       case JsDefined(JsString(value)) ⇒
         for {
-          isAdmin ← Free.liftF(I.inj(IsAdmin(value)))
+          isAdmin ← Free.liftFC(I.inj(IsAdmin(value)))
           result ← if (isAdmin) block else pure[F](Forbidden)
         } yield result
       case _ ⇒ pure[F](Unauthorized)
