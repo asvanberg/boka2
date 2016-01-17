@@ -13,11 +13,11 @@ object InventoryState extends ((List[Product], List[Copy]) ⇒ InventoryState) {
   def empty = InventoryState(Nil, Nil)
 }
 
-object InventoryStateInterpreter extends (InventoryManagement ~> (({type λ[α] = State[InventoryState, α]})#λ)) {
+object InventoryStateInterpreter extends (InventoryManagement ~> State[InventoryState, ?]) {
   override def apply[A](fa: InventoryManagement[A]): State[InventoryState, A] = State { state ⇒
     fa match {
       case AddProduct(data) =>
-        val id = state.products.foldLeft(0L)((acc, p) ⇒ math.max(acc, p.id)) + 1
+        val id = state.products.foldLeft(0)((acc, p) ⇒ math.max(acc, p.id)) + 1
         val newProduct = Product(id, data)
         (state.copy(products = newProduct :: state.products), newProduct)
       case FindProduct(id) =>

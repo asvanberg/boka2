@@ -1,0 +1,5 @@
+CREATE TABLE copy (
+  identifier VARCHAR(255) NOT NULL PRIMARY KEY,
+  product_id INTEGER NOT NULL REFERENCES product (id),
+  note TEXT DEFAULT NULL
+);

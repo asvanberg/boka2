@@ -1,0 +1,2 @@
+ALTER TABLE ongoing_loans ALTER COLUMN borrower TYPE BIGINT;
+ALTER TABLE returned_loans ALTER COLUMN borrower TYPE BIGINT;

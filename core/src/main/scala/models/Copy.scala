@@ -1,19 +1,15 @@
 package models
 
-import util.free._
-
 import scalaz.Free.FreeC
-import scalaz.\/.{left, right}
-import scalaz.\/
 
-final case class Copy(productId: Long, data: CopyData) {
+final case class Copy(productId: Int, data: CopyData) {
   def code: Identifier = data.code
   def note: Option[String] = data.note
 }
 
 final case class CopyData(code: Identifier, note: Option[String])
 
-object Copy extends ((Long, CopyData) ⇒ Copy) {
+object Copy extends ((Int, CopyData) ⇒ Copy) {
   final case class IdentifierNotUnique private[models](duplicate: Copy)
 
   sealed trait Status

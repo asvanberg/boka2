@@ -1,0 +1,142 @@
+a[data-tooltip] {
+  position: relative;
+  display: inline;
+}
+
+a[data-tooltip]::after {
+  display: block;
+  visibility: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  opacity: 0;
+  content: attr(data-tooltip);
+  height: auto;
+  min-width: 100px;
+  padding: 5px 8px;
+  z-index: 999;
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 5px;
+}
+
+a[data-tooltip]::before {
+  position: absolute;
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  left: 50%;
+  bottom: 0;
+  opacity: 0;
+  content: "";
+  border-style: solid;
+  border-width: 6px 6px 0 6px;
+  border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+}
+
+a[data-tooltip]:hover::after {
+  visibility: visible;
+  opacity: 1;
+  bottom: 20px;
+}
+
+a[data-tooltip]:hover::before {
+  visibility: visible;
+  opacity: 1;
+  bottom: 14px;
+}
+
+a[data-tooltip].animate::after, a[data-tooltip].animate::before {
+  transition: all 0.2s ease-in-out;
+}
+
+/* tips on bottom */
+a[data-tooltip].bottom::after {
+  bottom: auto;
+  top: 0;
+}
+
+a[data-tooltip].bottom:hover::after {
+  top: 28px;
+}
+
+a[data-tooltip].bottom::before {
+  border-width: 0 5px 9px 5px;
+  border-color: transparent transparent rgba(0, 0, 0, 0.85) transparent;
+  top: 0
+}
+
+a[data-tooltip].bottom:hover::before {
+  top: 20px;
+}
+
+/* tips on the right */
+a[data-tooltip].right::after {
+  left: 90%;
+  bottom: -45%;
+}
+
+a[data-tooltip].right:hover::after {
+  left: 100%;
+  bottom: -45%;
+  margin-left: 10px;
+}
+
+a[data-tooltip].right::before {
+  border-width: 5px 10px 5px 0;
+  border-color: transparent rgba(0, 0, 0, 0.85) transparent transparent;
+  left: 90%;
+  bottom: 2%;
+}
+
+a[data-tooltip].right:hover::before {
+  left: 100%;
+  bottom: 2%;
+}
+
+/* tips on the left */
+a[data-tooltip].left::after {
+  left: auto;
+  right: 100%;
+  bottom: -45%;
+}
+
+a[data-tooltip].left:hover::after {
+  right: 110%;
+  bottom: -45%;
+}
+
+a[data-tooltip].left::before {
+  border-width: 5px 0 5px 10px;
+  border-color: transparent transparent transparent rgba(0, 0, 0, 0.85);
+  left: auto;
+  right: 90%;
+  bottom: 2%;
+}
+
+a[data-tooltip].left:hover::before {
+  right: 100%;
+  bottom: 2%;
+}
+
+span.loading > span, span.loading::before, span.loading::after {
+  content: " ● ";
+  animation-iteration-count: infinite;
+  animation-duration: 1.2s;
+  animation-name: fadeOut;
+  opacity: 0;
+}
+
+span.loading > span {
+  animation-delay: 0.4s;
+}
+
+span.loading::after {
+  animation-delay: 0.8s;
+}
+
+aside.pull-right {
+  margin-left: 20px;
+}

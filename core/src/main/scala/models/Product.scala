@@ -7,14 +7,14 @@ import scalaz.Free.FreeC
 import scalaz.NonEmptyList
 import scalaz.std.list._
 
-final case class Product(id: Long, data: ProductData) {
+final case class Product(id: Int, data: ProductData) {
   def name: String = data.name
   def description: Option[String] = data.description
 }
 
 final case class ProductData(name: String, description: Option[String])
 
-object Product extends ((Long, ProductData) ⇒ Product) {
+object Product extends ((Int, ProductData) ⇒ Product) {
   final case class DuplicateName(other: Product)
 
   sealed trait Status

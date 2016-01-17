@@ -12,7 +12,7 @@ import scalaz.{Free, Inject, Monad, \/}
 sealed trait InventoryManagement[A]
 
 final case class AddProduct private[models] (data: ProductData) extends InventoryManagement[Product]
-final case class FindProduct private[models] (id: Long) extends InventoryManagement[Option[Product]]
+final case class FindProduct private[models] (id: Int) extends InventoryManagement[Option[Product]]
 case object ListProducts extends InventoryManagement[List[Product]]
 final case class UpdateProduct private[models] (product: Product, data: ProductData) extends InventoryManagement[Product]
 final case class RemoveProduct private[models] (product: Product) extends InventoryManagement[Unit]
@@ -29,7 +29,7 @@ class Inventory[F[_]](implicit I: Inject[InventoryManagement, F]) {
   def addProduct(data: ProductData): G[Product.DuplicateName \/ Product] =
     uniqueName[G](data.name, listProducts)(lift(AddProduct(data)))
 
-  def findProduct(id: Long): G[Option[Product]] = lift(FindProduct(id))
+  def findProduct(id: Int): G[Option[Product]] = lift(FindProduct(id))
 
   def updateProduct(product: Product, data: ProductData): G[Product.DuplicateName \/ Product] =
     uniqueName[G](data.name, listProducts.map(_.filter(_.id /== product.id)))(lift(UpdateProduct(product, data)))

@@ -1,33 +1,74 @@
-name := "boka2"
-
-Common.settings
-
-lazy val core = project
-
-lazy val boka2 = (project in file("."))
-  .enablePlugins(PlayScala, SbtWeb)
-  .aggregate(core)
-  .dependsOn(core)
-
-resolvers += Resolver.bintrayRepo("scalaz", "releases")
-libraryDependencies ++= Seq(
-  jdbc,
-  evolutions,
-  "com.typesafe.play" %% "anorm" % "2.5.0",
-  cache,
-  ws,
-  specs2 % Test,
-  "org.specs2" %% "specs2-scalacheck" % "3.6" % "test",
-  "org.specs2" %% "specs2-junit" % "3.6" % "test",
-  "org.typelevel" %% "shapeless-scalacheck" % "0.4" % "test",
-  "org.webjars" %% "webjars-play" % "2.4.0-1",
-  "org.webjars" % "bootstrap" % "3.3.4",
-  "com.google.code.findbugs" % "jsr305" % "1.3.9" % "provided" // This is here to prevent scalac from failing on missing annotations in Guava's BaseEncoding
+lazy val commonSettings = Seq(
+  version := "1.0.0-SNAPSHOT",
+  scalaVersion := "2.11.7",
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-encoding", "UTF-8",       // yes, this is 2 args
+    "-feature",
+    "-language:existentials",
+    "-language:higherKinds",
+    "-language:implicitConversions",
+    "-unchecked",
+    "-Xfatal-warnings",
+    "-Xlint",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",        // N.B. doesn't work well with the ??? hole
+    "-Ywarn-numeric-widen",
+    "-Ywarn-value-discard",
+    "-Xfuture"
+  ),
+  wartremoverErrors in (Compile, compile) ++= Warts.allBut(
+    Wart.NoNeedForMonad,
+    Wart.Nothing,
+    Wart.NonUnitStatements,
+    Wart.AsInstanceOf,
+    Wart.Any,
+    Wart.Throw,
+    Wart.Product
+  ),
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
 )
 
-wartremoverErrors in (Compile, compile) ++= Warts.allBut(Wart.NoNeedForMonad, Wart.Nothing, Wart.NonUnitStatements, Wart.AsInstanceOf, Wart.Any, Wart.Throw)
+val scalazVersion = "7.1.6"
+val http4sVersion = "0.11.3"
+val doobieVersion = "0.2.3"
 
-wartremoverExcluded <+= crossTarget { _ / "routes" / "main" / "router" / "RoutesPrefix.scala" }
-wartremoverExcluded <+= crossTarget { _ / "routes" / "main" / "router" / "Routes.scala" }
+lazy val boka2 = (project in file("."))
+  .settings(commonSettings)
+  .aggregate(core, api)
+  .dependsOn(core, api)
 
-pipelineStages := Seq(closure, digest, gzip)
+lazy val core = project
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-core" % scalazVersion,
+      "org.specs2" %% "specs2-scalacheck" % "3.6.6" % Test,
+      "org.typelevel" %% "shapeless-scalacheck" % "0.3" % Test
+    )
+  )
+
+lazy val api = project.in(file("rest-api"))
+  .dependsOn(core)
+  .settings(commonSettings)
+  .settings(resolvers += Resolver.bintrayRepo("oncue", "releases"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.scalaz" %% "scalaz-core" % scalazVersion,
+      "org.scalaz" %% "scalaz-concurrent" % scalazVersion,
+      "org.http4s" %% "http4s-dsl" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-server" % http4sVersion,
+      "org.http4s" %% "http4s-blaze-client" % http4sVersion,
+      "org.http4s" %% "http4s-argonaut" % http4sVersion,
+      "org.tpolecat" %% "doobie-core" % doobieVersion,
+      "org.tpolecat" %% "doobie-contrib-hikari" % doobieVersion,
+      "org.tpolecat" %% "doobie-contrib-specs2" % doobieVersion % Test,
+      "com.h2database" % "h2" % "1.4.190",
+      "org.postgresql" % "postgresql" % "9.4.1207",
+      "io.argonaut" %% "argonaut" % "6.1",
+      "oncue.knobs" %% "core" % "3.3.3",
+      "org.slf4j" % "slf4j-simple" % "1.7.12",
+      "org.flywaydb" % "flyway-core" % "3.2.1",
+      "org.specs2" %% "specs2-core" % "3.6.6" % Test
+    )
+  )

@@ -1,0 +1,17 @@
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="/bower_components/mithril/mithril.min.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+
+<script type="text/javascript">
+var hash = m.route.parseQueryString(location.hash.substring(1));
+if (hash && hash.id_token) {
+  sessionStorage.setItem('id_token', hash.id_token);
+  var route = hash.state || "/";
+  location.replace('/?' + route);
+}
+else {
+  document.location.replace('/?/login');
+}
+</script>
