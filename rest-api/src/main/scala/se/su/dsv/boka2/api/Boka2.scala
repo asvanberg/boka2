@@ -55,7 +55,7 @@ object Boka2 extends App {
       )
 
     def decode(str: Base64String) =
-      Task.delay(Base64.getDecoder.decode(str.getBytes(StandardCharsets.UTF_8)))
+      Task.delay(Base64.getUrlDecoder.decode(str.getBytes(StandardCharsets.UTF_8)))
 
     for {
       config ← knobs.loadImmutable(Required(ClassPathResource("application.cfg")) :: Nil)
