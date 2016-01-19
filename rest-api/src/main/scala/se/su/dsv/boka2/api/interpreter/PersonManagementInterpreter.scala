@@ -60,7 +60,7 @@ class PersonManagementInterpreter(apiConfig: PersonApiConfiguration) extends (Pe
 
 object PersonManagementInterpreter {
   private val Personnummer = "(\\d{6})\\-(\\d{4})".r
-  private val AccessCard = "(\\d{3,})".r
+  private val AccessCard = "0*(\\d{3,})".r
 
   implicit val personIdCodec: CodecJson[PersonId] = CodecJson.derived[Long].xmap(PersonId)(_.id)
   implicit val personCodec: CodecJson[Person] = casecodec4(Person.apply, Person.unapply)("id", "firstName", "lastName", "email")
