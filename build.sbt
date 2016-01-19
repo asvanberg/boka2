@@ -30,7 +30,7 @@ lazy val commonSettings = Seq(
 )
 
 val scalazVersion = "7.1.6"
-val http4sVersion = "0.11.3"
+val http4sVersion = "0.12.0"
 val doobieVersion = "0.2.3"
 
 lazy val boka2 = (project in file("."))

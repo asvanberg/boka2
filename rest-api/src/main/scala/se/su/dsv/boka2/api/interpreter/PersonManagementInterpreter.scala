@@ -20,14 +20,14 @@ class PersonManagementInterpreter(apiConfig: PersonApiConfiguration) extends (Pe
   private val authorizationHeader = Authorization(BasicCredentials(apiConfig.username, apiConfig.password))
   private val baseUri = apiConfig.uri
 
-  private def jsonRequest(endpoint: Uri ⇒ Uri) =
-    client(
+  private def jsonRequest[A](endpoint: Uri ⇒ Uri) =
+    client.fetch[A](
       Request(uri = endpoint(baseUri))
         .putHeaders(
           authorizationHeader,
           Accept(MediaType.`application/json`)
         )
-    )
+    ) _
 
   override def apply[A](fa: PersonManagement[A]): Task[A] =
     fa match {
@@ -38,11 +38,11 @@ class PersonManagementInterpreter(apiConfig: PersonApiConfiguration) extends (Pe
           case str if str contains "@" ⇒ "email" → str
           case _ ⇒ "fullname" → term
         }
-        jsonRequest(_ / "person" +?(searchParameter._1, searchParameter._2)) flatMap {
+        jsonRequest(_ / "person" +?(searchParameter._1, searchParameter._2)) {
           case Ok(response) => response.as[List[Person]]
         }
       case GetPerson(id) =>
-        jsonRequest(_ / "person" / id.toString) flatMap {
+        jsonRequest(_ / "person" / id.toString) {
           case Ok(response) => response.as[Person].map(some)
           case NotFound(_) => Task.now(none)
         }
@@ -51,7 +51,7 @@ class PersonManagementInterpreter(apiConfig: PersonApiConfiguration) extends (Pe
           uri = baseUri / "person" / id.toString / "photo",
           headers = Headers(authorizationHeader)
         )
-        client(request) flatMap {
+        client.fetch(request) {
           case Ok(response) => response.as[ByteVector] map { b => some(b.toArray) }
           case NotFound(_) => Task.now(none)
         }

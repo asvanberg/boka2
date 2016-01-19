@@ -4,10 +4,10 @@ import argonaut.Argonaut._
 import models.Copy.IdentifierNotUnique
 import models.Product.DuplicateName
 import models.{Copy, CopyData, ProductData}
+import org.http4s.HttpService
 import org.http4s.argonaut._
 import org.http4s.dsl._
-import org.http4s.headers.{`Content-Type`, Location}
-import org.http4s.MediaType.`application/base64`
+import org.http4s.headers.Location
 import org.http4s.server._
 import se.su.dsv.boka2.api._
 import se.su.dsv.boka2.api.model._

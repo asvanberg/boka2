@@ -1,11 +1,11 @@
 package se.su.dsv.boka2.api.service
 
 import argonaut.Argonaut._
+import org.http4s.HttpService
 import org.http4s.MediaType.`application/base64`
 import org.http4s.argonaut._
 import org.http4s.dsl._
 import org.http4s.headers.`Content-Type`
-import org.http4s.server.HttpService
 import se.su.dsv.boka2.api._
 
 import scalaz._

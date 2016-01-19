@@ -2,9 +2,9 @@ package se.su.dsv.boka2.api.service
 
 import argonaut.Argonaut._
 import models.{Loan, Copy}
+import org.http4s.HttpService
 import org.http4s.argonaut._
 import org.http4s.dsl._
-import org.http4s.server.HttpService
 import se.su.dsv.boka2.api.model.{ReturnRequest, LoanRequest, CopyDetails}
 import se.su.dsv.boka2.api.{loans, inventory, Boka2Op}
 import _root_.util.free._

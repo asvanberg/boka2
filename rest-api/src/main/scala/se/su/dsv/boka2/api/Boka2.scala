@@ -7,8 +7,9 @@ import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import doobie.imports._
 import knobs._
 import org.flywaydb.core.Flyway
+import org.http4s.HttpService
 import org.http4s.server.blaze.BlazeBuilder
-import org.http4s.server.{Router, HttpService, Server}
+import org.http4s.server.{Router, Server}
 import org.http4s.{DecodeFailureException, Uri}
 import se.su.dsv.boka2.api.interpreter.PersonManagementInterpreter
 import se.su.dsv.boka2.api.middleware.JWTAuthentication

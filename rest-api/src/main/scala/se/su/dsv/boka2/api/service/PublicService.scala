@@ -2,9 +2,9 @@ package se.su.dsv.boka2.api.service
 
 import argonaut._, Argonaut._
 import org.http4s.{Response, Request}
+import org.http4s.HttpService
 import org.http4s.argonaut._
 import org.http4s.dsl._
-import org.http4s.server.HttpService
 import se.su.dsv.boka2.api.{Program, inventory, Boka2Op}
 import se.su.dsv.boka2.api.model.ProductDetails
 import util.free._
