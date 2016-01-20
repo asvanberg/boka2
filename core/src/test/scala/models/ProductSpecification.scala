@@ -32,5 +32,5 @@ class ProductSpecification extends Specification with ScalaCheck with Disjunctio
     eval(program, InventoryState.empty)
 
   def eval[A](program: Free.FreeC[InventoryManagement, A], inventory: InventoryState) =
-    Free.runFC[InventoryManagement, ({type λ[α] = State[InventoryState, α]})#λ, A](program)(InventoryStateInterpreter).eval(inventory)
+    Free.runFC[InventoryManagement, State[InventoryState, ?], A](program)(InventoryStateInterpreter).eval(inventory)
 }

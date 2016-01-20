@@ -1,22 +1,21 @@
 package se.su.dsv.boka2.api
 
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Path ⇒ JPath, Files, Paths}
+import java.nio.file.{Path ⇒ JPath}
 import java.util.Base64
 
 import doobie.contrib.hikari.hikaritransactor.HikariTransactor
 import doobie.imports._
 import knobs._
 import org.flywaydb.core.Flyway
-import org.http4s.HttpService
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.server.{Router, Server}
-import org.http4s.{DecodeFailureException, Uri}
+import org.http4s.{DecodeFailureException, HttpService, Uri}
 import se.su.dsv.boka2.api.interpreter.{FileSystemStorage, PersonManagementInterpreter}
 import se.su.dsv.boka2.api.middleware.JWTAuthentication
+import se.su.dsv.boka2.api.service.{InventoryService, LoanService, PersonService, PublicService}
+import se.su.dsv.boka2.api.util.jwt._
 import se.su.dsv.boka2.api.util.{HS256Signer, jwt}
-import jwt._
-import se.su.dsv.boka2.api.service.{LoanService, PersonService, InventoryService, PublicService}
 
 import scala.util.Properties._
 import scalaz.concurrent.Task

@@ -1,18 +1,17 @@
 package se.su.dsv.boka2.api.service
 
-import argonaut._, Argonaut._
-import org.http4s.{Response, Request}
-import org.http4s.HttpService
+import argonaut.Argonaut._
 import org.http4s.argonaut._
 import org.http4s.dsl._
-import se.su.dsv.boka2.api.{Program, inventory, Boka2Op}
+import org.http4s.{HttpService, Request, Response}
 import se.su.dsv.boka2.api.model.ProductDetails
+import se.su.dsv.boka2.api.{Boka2Op, Program, inventory}
 import util.free._
 
 import scalaz.concurrent.Task
+import scalaz.std.option._
 import scalaz.syntax.monad._
 import scalaz.{Free, ~>}
-import scalaz.std.option._
 
 object PublicService {
   def apply(interpreter: Boka2Op ~> Task) = freeService(interpreter) {

@@ -26,7 +26,7 @@ class CopyDetails
 
     @addItem = =>
       @pending().push(@barcode())
-      if not @copies().some((c) => c.copy().barcode() == @barcode())
+      if not @copies().some((c) => c.copy().barcode() is @barcode())
         CopyDetails.get(@barcode())
           .then(
             (c) =>
@@ -161,7 +161,7 @@ class CopyDetails
 
     @returnItems = =>
       for c in @copies()
-        do (c) =>
+        do (c) ->
           c.copy().return_(Date.now())
             .then(
               -> c.status "ok"

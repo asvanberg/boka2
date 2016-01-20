@@ -1,9 +1,8 @@
 package se.su.dsv.boka2.api.middleware
 
-import org.http4s.{HttpService, Service}
 import org.http4s.headers.Authorization
 import org.http4s.server.HttpMiddleware
-import org.http4s.{OAuth2BearerToken, Response, Status}
+import org.http4s.{HttpService, OAuth2BearerToken, Response, Service, Status}
 import se.su.dsv.boka2.api.util.jwt
 
 import scalaz.concurrent.Task

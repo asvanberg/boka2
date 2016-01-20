@@ -51,7 +51,7 @@ person =
           m "a.list-group-item",
             onclick: args.onselect.bind this, person
             key: person.id()
-            class: if index == ctrl.selectedIndex() then "active" else ""
+            class: if index is ctrl.selectedIndex() then "active" else ""
             [
               m.component exports.components.image.person,
                 class: "pull-right img-rounded"
