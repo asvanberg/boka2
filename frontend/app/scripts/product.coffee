@@ -132,18 +132,23 @@ productModule =
       product = ctrl.productDetails().product
       [
         m "h1", "Product details"
-        m.component form, {product: product, onsave: ctrl.save, oncancel: -> m.route "/product/#{product().id()}"} if ctrl.editing()
-        m "form", [
-          m "a.btn.btn-link.pull-right", {onclick: ctrl.editing.bind this, true}, "Edit"
-          m ".form-group", [
-            m "label.control-label", "Name"
-            m "p.form-control-static", product().name()
+        m ".row", [
+          m ".col-sm-8", [
+            m.component form, {product: product, onsave: ctrl.save, oncancel: -> m.route "/product/#{product().id()}"} if ctrl.editing()
+            m "form", [
+              m "a.btn.btn-link.pull-right", {onclick: ctrl.editing.bind this, true}, "Edit"
+              m ".form-group", [
+                m "label.control-label", "Name"
+                m "p.form-control-static", product().name()
+              ]
+              m ".form-group", [
+                m "label.control-label", "Description"
+                m "p.form-control-static", product().description() or m "i", "None"
+              ]
+            ] unless ctrl.editing()
           ]
-          m ".form-group", [
-            m "label.control-label", "Description"
-            m "p.form-control-static", product().description() or m "i", "None"
-          ]
-        ] unless ctrl.editing()
+          m ".col-sm-4", m.component exports.components.image.product, product
+        ]
         m "h2", "Copies"
         if ctrl.productDetails().copies().length
           m "table.table.table-striped.table-hover", [

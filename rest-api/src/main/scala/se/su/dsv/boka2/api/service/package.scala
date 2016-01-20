@@ -1,5 +1,6 @@
 package se.su.dsv.boka2.api
 
+import java.nio.charset.StandardCharsets
 import java.time.{ZoneId, Clock, Instant, LocalDate}
 
 import argonaut.Argonaut._
@@ -71,6 +72,15 @@ package object service {
         jEmptyObject
   }
 
+  implicit val fileDescriptionEncodeJson: EncodeJson[FileDescription] = EncodeJson[FileDescription] {
+    case FileDescription(MetaData(name, contentType, size), fileData) ⇒
+      ("name" := name) ->:
+        ("contentType" := contentType) ->:
+        ("size" := size) ->:
+        ("data" := new String(java.util.Base64.getEncoder.encode(fileData), StandardCharsets.UTF_8)) ->:
+        jEmptyObject
+  }
+
   implicit val productDataCodec: CodecJson[ProductData] =
     casecodec2(ProductData.apply, ProductData.unapply)("name", "description")
 
@@ -80,9 +90,14 @@ package object service {
   implicit val copyDataCodec: CodecJson[CopyData] =
     casecodec2(CopyData.apply, CopyData.unapply)("barcode", "note")
 
+  implicit val uploadRequestCodec: CodecJson[UploadRequest] =
+    casecodec3(UploadRequest.apply, UploadRequest.unapply)("name", "contentType", "data")
+
   implicit val d: EntityDecoder[ProductData] = jsonOf[ProductData]
 
   implicit val c: EntityDecoder[CopyData] = jsonOf[CopyData]
+
+  implicit val b: EntityDecoder[UploadRequest] = jsonOf[UploadRequest]
 
   import jsonValidation._
   implicit val x: JsonValidator[CopyData] = new JsonValidator[CopyData] {

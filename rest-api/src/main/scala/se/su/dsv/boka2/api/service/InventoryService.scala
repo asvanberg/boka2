@@ -3,7 +3,7 @@ package se.su.dsv.boka2.api.service
 import argonaut.Argonaut._
 import models.Copy.IdentifierNotUnique
 import models.Product.DuplicateName
-import models.{Copy, CopyData, ProductData}
+import models._
 import org.http4s.HttpService
 import org.http4s.argonaut._
 import org.http4s.dsl._
@@ -85,5 +85,27 @@ object InventoryService {
         }
       } yield Ok(result.flatten.asJson)
       Free.runFC(prg)(interpreter).join
+    case request @ POST -> Root / "product" / IntVar(id) / "image" ⇒
+      request.decode[UploadRequest] { uploadRequest ⇒
+        val data = java.util.Base64.getMimeDecoder.decode(uploadRequest.data)
+        val metaData = MetaData(uploadRequest.name, uploadRequest.contentType, data.length)
+        val fd = FileDescription(metaData, data)
+        val prg = for {
+          product ← inventory.findProduct(id)
+          result ← product traverseFC { p ⇒ files.storeFile(s"product-${p.id}", fd)}
+        } yield result
+        Free.runFC(prg)(interpreter) flatMap { _.fold(NotFound())(_ ⇒ Ok()) }
+      }
+    case GET -> Root / "product" / IntVar(id) / "image" ⇒
+      val prg = for {
+        product ← inventory.findProduct(id)
+        image ← product traverseFC { p ⇒ files.retrieveFile(s"product-${p.id}")}
+      } yield image.flatten
+      Free.runFC(prg)(interpreter) flatMap {
+        case Some(fd) ⇒
+          Ok(fd.asJson)
+        case None ⇒
+          NotFound()
+      }
   }
 }

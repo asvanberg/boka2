@@ -1,6 +1,7 @@
 package se.su.dsv.boka2.api
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.{Path ⇒ JPath, Files, Paths}
 import java.util.Base64
 
 import doobie.contrib.hikari.hikaritransactor.HikariTransactor
@@ -11,7 +12,7 @@ import org.http4s.HttpService
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.{DecodeFailureException, Uri}
-import se.su.dsv.boka2.api.interpreter.PersonManagementInterpreter
+import se.su.dsv.boka2.api.interpreter.{FileSystemStorage, PersonManagementInterpreter}
 import se.su.dsv.boka2.api.middleware.JWTAuthentication
 import se.su.dsv.boka2.api.util.{HS256Signer, jwt}
 import jwt._
@@ -22,14 +23,15 @@ import scalaz.concurrent.Task
 import scalaz.~>
 
 object Boka2 extends App {
+
   val port = envOrNone("HTTP_PORT") map (_.toInt) getOrElse 8080
 
   val app = for {
     config         ← readConfig
-    (dbConfig, daisyConfig, jwtSecret) = config
+    ApplicationConfiguration(dbConfig, daisyConfig, jwtSecret, filesDirectory) = config
     _              ← migrateDatabase(dbConfig)
     connectionPool ← HikariTransactor[Task](dbConfig.driver, dbConfig.url, "", "")
-    interpreter    = buildInterpreter(connectionPool.trans, daisyConfig)
+    interpreter    = buildInterpreter(connectionPool.trans, daisyConfig, filesDirectory)
     authentication = new JWTAuthentication(new HS256Signer(jwtSecret))(isAdmin(connectionPool))
     publicService  = PublicService(interpreter)
     adminService   = authentication(Router(
@@ -67,8 +69,16 @@ object Boka2 extends App {
       personsUsername = personsConfig.require[String]("username")
       personsPassword = personsConfig.require[String]("password")
       jwtSecret ← decode(config.require[String]("jwt.secret"))
+      filesDirectory = config.require[JPath]("files.directory")
     } yield {
-      (DatabaseConfiguration(databaseDriver, databaseUrl), PersonApiConfiguration(personsUri, personsUsername, personsPassword), jwtSecret)
+      val databaseConfiguration = DatabaseConfiguration(databaseDriver, databaseUrl)
+      val personApi = PersonApiConfiguration(personsUri, personsUsername, personsPassword)
+      ApplicationConfiguration(
+        databaseConfiguration,
+        personApi,
+        jwtSecret,
+        filesDirectory
+      )
     }
   }
 
@@ -78,14 +88,18 @@ object Boka2 extends App {
     flyway.migrate()
   }
 
-  def buildInterpreter(transactor: ConnectionIO ~> Task, daisyConfig: PersonApiConfiguration) = {
+  def buildInterpreter(transactor: ConnectionIO ~> Task, daisyConfig: PersonApiConfiguration, filesDirectory: JPath): Boka2Op ~> Task = {
     val f0 = transactor compose new (F0 ~> ConnectionIO) {
       override def apply[A](fa: F0[A]): ConnectionIO[A] =
         fa.run.fold(interpreter.InventoryManagementInterpreter.apply, interpreter.LoanManagementInterpreter.apply)
     }
+    val f1 = new (F1 ~> Task) {
+      override def apply[A](fa: F1[A]): Task[A] =
+        fa.run.fold(new PersonManagementInterpreter(daisyConfig).apply, f0.apply)
+    }
     new (Boka2Op ~> Task) {
       override def apply[A](fa: Boka2Op[A]): Task[A] =
-        fa.run.fold(new PersonManagementInterpreter(daisyConfig).apply, f0.apply)
+        fa.run.fold(new FileSystemStorage(filesDirectory).apply, f1.apply)
     }
   }
 
@@ -95,6 +109,14 @@ object Boka2 extends App {
     services.foldLeft(server)(_.mountService(_, "/api")).start
   }
 }
+
+final case class ApplicationConfiguration
+(
+  database: DatabaseConfiguration,
+  personApi: PersonApiConfiguration,
+  jwtSecret: Array[Byte],
+  filesDirectory: JPath
+)
 
 final case class DatabaseConfiguration(driver: String, url: String)
 
