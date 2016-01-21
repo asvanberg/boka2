@@ -1,7 +1,9 @@
 package util
 
+import models.freeCMonad
+
 import scalaz.Free._
-import scalaz.{Coyoneda, Free, Traverse}
+import scalaz.Traverse
 
 trait FreeTraversal {
   implicit class TraverseFCUtil[A, F[_] : Traverse](fa: F[A]) {
@@ -9,8 +11,7 @@ trait FreeTraversal {
 
     class Helper[G[_]] {
       def apply[B](f: A ⇒ FreeC[G, B]): FreeC[G, F[B]] = {
-        val q = Free.freeMonad[Coyoneda[G, ?]]
-        Traverse[F].traverse[FreeC[G, ?], A, B](fa)(f)(q)
+        Traverse[F].traverse[FreeC[G, ?], A, B](fa)(f)
       }
     }
   }

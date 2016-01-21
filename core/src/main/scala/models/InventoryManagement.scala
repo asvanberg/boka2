@@ -38,7 +38,7 @@ class Inventory[F[_]](implicit I: Inject[InventoryManagement, F]) {
     products ← productsM
     result ← products.find(_.name === name) match {
       case Some(duplicate) ⇒ left(Product.DuplicateName(duplicate)).pure[M]
-      case None ⇒ g map right
+      case _ ⇒ g map right
     }
   } yield result
 
@@ -48,7 +48,7 @@ class Inventory[F[_]](implicit I: Inject[InventoryManagement, F]) {
     existing ← findCopy(data.code)
     result ← existing match {
       case Some(duplicate) ⇒ left(Copy.IdentifierNotUnique(duplicate)).pure[G]
-      case None ⇒ lift(AddCopy(product, data)) map right
+      case _ ⇒ lift(AddCopy(product, data)) map right
     }
   } yield result
 

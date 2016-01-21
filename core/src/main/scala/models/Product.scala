@@ -6,6 +6,7 @@ import scala.collection.immutable.List
 import scalaz.Free.FreeC
 import scalaz.NonEmptyList
 import scalaz.std.list._
+import scalaz.syntax.functor._
 
 final case class Product(id: Int, data: ProductData) {
   def name: String = data.name
@@ -36,11 +37,9 @@ object Product extends ((Int, ProductData) ⇒ Product) {
       }
     }
 
-    def withStatus(copy: Copy) = Copy.status(copy) map { (copy, _) }
-
     for {
       copies ← I.getCopies(product)
-      statuses ← copies.traverseFC(withStatus)
+      statuses ← copies.traverseFC(copy ⇒ Copy.status(copy) strengthL copy)
     } yield {
       deriveProductStatus(statuses)
     }

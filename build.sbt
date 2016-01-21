@@ -18,13 +18,12 @@ lazy val commonSettings = Seq(
     "-Xfuture"
   ),
   wartremoverErrors in (Compile, compile) ++= Warts.allBut(
-    Wart.NoNeedForMonad,
     Wart.Nothing,
     Wart.NonUnitStatements,
     Wart.AsInstanceOf,
     Wart.Any,
     Wart.Throw,
-    Wart.Product
+    Wart.ExplicitImplicitTypes
   ),
   addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
 )

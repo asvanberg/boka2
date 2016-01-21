@@ -29,7 +29,7 @@ object Loan {
   )(implicit L: Loans[F]): FreeC[F, CopyNotAvailable \/ Ongoing] = {
     L.current(copy) flatMap {
       case Some(ongoing) ⇒ pure(left(CopyNotAvailable(ongoing)))
-      case None ⇒ L.recordLoan(copy, borrower, loaned) map right
+      case _ ⇒ L.recordLoan(copy, borrower, loaned) map right
     }
   }
 
