@@ -25,15 +25,13 @@ object Product extends ((Int, ProductData) ⇒ Product) {
 
   def status[F[_]](product: Product)(implicit I: Inventory[F], L: Loans[F]): FreeC[F, Status] = {
     def deriveProductStatus(statuses: List[(Copy, Copy.Status)]): Status = {
-      statuses.foldLeft[Status](NoCopies) { case (productStatus, (copy, copyStatus)) ⇒
-        (productStatus, copyStatus) match {
-          case (NoCopies, Copy.Available) ⇒ Available(NonEmptyList(copy))
-          case (NoCopies, Copy.Borrowed(ongoing)) ⇒ Unavailable(NonEmptyList(copy → ongoing))
-          case (Available(copies), Copy.Available) ⇒ Available(copy <:: copies)
-          case (Unavailable(_), Copy.Available) ⇒ Available(NonEmptyList(copy))
-          case (Unavailable(copies), Copy.Borrowed(ongoing)) ⇒ Unavailable((copy → ongoing) <:: copies)
-          case _ ⇒ productStatus
-        }
+      statuses.foldLeft[Status](NoCopies) {
+        case (NoCopies, (copy, Copy.Available)) ⇒ Available(NonEmptyList(copy))
+        case (NoCopies, (copy, Copy.Borrowed(ongoing))) ⇒ Unavailable(NonEmptyList(copy → ongoing))
+        case (Available(copies), (copy, Copy.Available)) ⇒ Available(copy <:: copies)
+        case (Unavailable(_), (copy, Copy.Available)) ⇒ Available(NonEmptyList(copy))
+        case (Unavailable(copies), (copy, Copy.Borrowed(ongoing))) ⇒ Unavailable((copy → ongoing) <:: copies)
+        case (productStatus, _) ⇒ productStatus
       }
     }
 
