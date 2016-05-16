@@ -1,7 +1,7 @@
 package se.su.dsv.boka2.api.interpreter
 
 import doobie.imports._
-import models.{freeCMonad ⇒ _, _}
+import models._
 
 import scalaz._
 import scalaz.syntax.functor._

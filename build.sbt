@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   version := "1.0.0-SNAPSHOT",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.8",
   scalacOptions ++= Seq(
     "-deprecation",
     "-encoding", "UTF-8",       // yes, this is 2 args
@@ -25,7 +25,8 @@ lazy val commonSettings = Seq(
     Wart.Throw,
     Wart.ExplicitImplicitTypes
   ),
-  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
+  addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1"),
+  addCompilerPlugin("com.milessabin" % "si2712fix-plugin" % "1.2.0" cross CrossVersion.full)
 )
 
 val scalazVersion = "7.1.6"

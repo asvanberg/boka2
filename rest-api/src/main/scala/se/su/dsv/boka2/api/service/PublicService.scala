@@ -6,11 +6,11 @@ import org.http4s.dsl._
 import org.http4s.{HttpService, Request, Response}
 import se.su.dsv.boka2.api.model.ProductDetails
 import se.su.dsv.boka2.api.{Boka2Op, Program, inventory}
-import util.free._
 
 import scalaz.concurrent.Task
 import scalaz.std.option._
 import scalaz.syntax.monad._
+import scalaz.syntax.traverse._
 import scalaz.{Free, ~>}
 
 object PublicService {
@@ -20,7 +20,7 @@ object PublicService {
       case GET -> Root / "product" / IntVar(id) ⇒
         for {
           product ← inventory.findProduct(id)
-          copies ← product traverseFC inventory.getCopies
+          copies ← product traverse inventory.getCopies
         } yield ^(product, copies)(ProductDetails) match {
           case Some(productDetails) ⇒ Ok(productDetails.asJson)
           case None ⇒ NotFound()

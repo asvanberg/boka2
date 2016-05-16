@@ -1,12 +1,10 @@
 package models
 
-import util.free._
-
 import scala.collection.immutable.List
 import scalaz.Free.FreeC
 import scalaz.NonEmptyList
 import scalaz.std.list._
-import scalaz.syntax.functor._
+import scalaz.syntax.traverse._
 
 final case class Product(id: Int, data: ProductData) {
   def name: String = data.name
@@ -37,7 +35,7 @@ object Product extends ((Int, ProductData) ⇒ Product) {
 
     for {
       copies ← I.getCopies(product)
-      statuses ← copies.traverseFC(copy ⇒ Copy.status(copy) strengthL copy)
+      statuses ← copies.traverse(copy ⇒ Copy.status(copy) strengthL copy)
     } yield {
       deriveProductStatus(statuses)
     }

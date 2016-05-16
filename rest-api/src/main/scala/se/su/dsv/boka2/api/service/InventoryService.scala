@@ -11,13 +11,13 @@ import org.http4s.headers.Location
 import org.http4s.server._
 import se.su.dsv.boka2.api._
 import se.su.dsv.boka2.api.model._
-import _root_.util.free._
 
 import scalaz._
 import scalaz.concurrent.Task
 import scalaz.std.list._
 import scalaz.std.option._
 import scalaz.syntax.bind._
+import scalaz.syntax.traverse._
 
 object InventoryService {
   def apply(interpreter: Boka2Op ~> Task): HttpService = HttpService {
@@ -32,7 +32,7 @@ object InventoryService {
       }
     case GET -> Root / "product" / IntVar(id) / "copies" ⇒
       val prg = inventory.findProduct(id) flatMap {
-        _ traverseFC inventory.getCopies
+        _ traverse inventory.getCopies
       }
       Free.runFC(prg)(interpreter) flatMap {
         case Some(copies) ⇒ Ok(copies.asJson)
@@ -42,7 +42,7 @@ object InventoryService {
       jsonValidation.validateAs[ProductData](request) { productData ⇒
         val prg = for {
           product ← inventory.findProduct(id)
-          updateResult ← product traverseFC {
+          updateResult ← product traverse {
             inventory.updateProduct(_, productData)
           }
         } yield updateResult
@@ -58,7 +58,7 @@ object InventoryService {
       request.decode[CopyData] { copyData ⇒
         val prg = for {
           product ← inventory.findProduct(id)
-          copy ← product traverseFC {
+          copy ← product traverse {
             inventory.addCopy(_, copyData)
           }
         } yield copy
@@ -73,10 +73,10 @@ object InventoryService {
     case GET -> Root / "inventoryCheck" ⇒
       val prg = for {
         products ← inventory.listProducts
-        result ← products traverseFC { product ⇒
+        result ← products traverse { product ⇒
           for {
             copies ← inventory.getCopies(product)
-            result ← copies traverseFC { copy ⇒
+            result ← copies traverse { copy ⇒
               for {
                 status ← Copy.status[Boka2Op](copy)
               } yield InventoryCheckCopy(product, copy, status)
@@ -92,14 +92,14 @@ object InventoryService {
         val fd = FileDescription(metaData, data)
         val prg = for {
           product ← inventory.findProduct(id)
-          result ← product traverseFC { p ⇒ files.storeFile(s"product-${p.id}", fd)}
+          result ← product traverse { p ⇒ files.storeFile(s"product-${p.id}", fd)}
         } yield result
         Free.runFC(prg)(interpreter) flatMap { _.fold(NotFound())(_ ⇒ Ok()) }
       }
     case GET -> Root / "product" / IntVar(id) / "image" ⇒
       val prg = for {
         product ← inventory.findProduct(id)
-        image ← product traverseFC { p ⇒ files.retrieveFile(s"product-${p.id}")}
+        image ← product traverse { p ⇒ files.retrieveFile(s"product-${p.id}")}
       } yield image.flatten
       Free.runFC(prg)(interpreter) flatMap {
         case Some(fd) ⇒

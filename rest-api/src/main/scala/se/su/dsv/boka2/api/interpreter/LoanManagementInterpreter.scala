@@ -3,7 +3,7 @@ package se.su.dsv.boka2.api.interpreter
 import java.time.LocalDate
 
 import doobie.imports._
-import models.{freeCMonad ⇒ _, _}
+import models._
 
 import scalaz.syntax.apply._
 import scalaz.~>

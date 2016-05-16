@@ -2,12 +2,12 @@ package models
 
 import java.time.LocalDate
 
-import util.free._
-
 import scala.collection.immutable._
 import scalaz.Free.FreeC
 import scalaz.\/
-import scalaz.\/.{left, right}
+import scalaz.\/.right
+import scalaz.syntax.either._
+import scalaz.syntax.monad._
 
 sealed trait Loan {
   def copyId: Identifier
@@ -28,7 +28,7 @@ object Loan {
                     loaned: LocalDate
   )(implicit L: Loans[F]): FreeC[F, CopyNotAvailable \/ Ongoing] = {
     L.current(copy) flatMap {
-      case Some(ongoing) ⇒ pure(left(CopyNotAvailable(ongoing)))
+      case Some(ongoing) ⇒ CopyNotAvailable(ongoing).left[Ongoing].pure[FreeC[F, ?]]
       case _ ⇒ L.recordLoan(copy, borrower, loaned) map right
     }
   }

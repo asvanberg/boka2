@@ -7,11 +7,11 @@ import org.http4s.argonaut._
 import org.http4s.dsl._
 import se.su.dsv.boka2.api.model.{ReturnRequest, LoanRequest, CopyDetails}
 import se.su.dsv.boka2.api.{loans, inventory, Boka2Op}
-import _root_.util.free._
 
 import scalaz.concurrent.Task
 import scalaz.std.option._
 import scalaz.syntax.bind._
+import scalaz.syntax.traverse._
 import scalaz.{-\/, \/-, Free, ~>}
 
 object LoanService {
@@ -19,8 +19,8 @@ object LoanService {
     case GET -> Root / "details" / barcode ⇒
       val prg = for {
         copy ← inventory findCopy barcode
-        status ← copy traverseFC Copy.status[Boka2Op]
-        product ← copy traverseFC { c ⇒
+        status ← copy traverse Copy.status[Boka2Op]
+        product ← copy traverse { c ⇒
           inventory.findProduct(c.productId)
         }
         details = ^^(product.flatten, copy, status)(CopyDetails)
@@ -34,7 +34,7 @@ object LoanService {
         loanRequest ⇒
           val prg = for {
             copy ← inventory.findCopy(loanRequest.barcode)
-            result ← copy traverseFC {
+            result ← copy traverse {
               Loan.borrow[Boka2Op](_, loanRequest.borrower, loanRequest.borrowed)
             }
           } yield result match {
@@ -51,9 +51,9 @@ object LoanService {
         returnRequest ⇒
           val prg = for {
             copy ← inventory findCopy returnRequest.barcode
-            ongoing ← copy traverseFC loans.current
-            returned ← ongoing traverseFC {
-              _ traverseFC { loans.returnLoan(_, returnRequest.returnDate) }
+            ongoing ← copy traverse loans.current
+            returned ← ongoing traverse {
+              _ traverse { loans.returnLoan(_, returnRequest.returnDate) }
             }
           }
           yield returned match {
